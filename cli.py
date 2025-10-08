@@ -1,20 +1,42 @@
 import argparse
 from pathlib import Path
 from extract.extract_font import extract_chars_and_draw
+from inject.inject_font import inject_font
 
 def parse_args():
     parser = argparse.ArgumentParser(description="A CLI tool for extracting and injecting files to Naruto Konoha Senki")
     subparsers = parser.add_subparsers(dest="command", required=True)
     
-    #font extraction
+    #---------------------------- EXTRACT FONT --------------------------------
     extract_font_parser = subparsers.add_parser("extract_font", help="Extract 1 byte character SJIS font as BMP files to ./extract/font")
-    extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.", required=True)
-    extract_font_parser.add_argument("--output_folder", "-o", help="Path to save font images to. Can be an exact or relative path. Optional argument.")
-    extract_font_parser.add_argument("--sjis_table", "-s", help="Path to the SJIS table file. Can be an exact or relative path. Optional argument.")
+    extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font images to. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--sjis_table", "-s", help="Optional. Path to the SJIS table file. Can be an exact or relative path.")
+    
+    #---------------------------- INJECT FONT ---------------------------------
+    inject_font_parser = subparsers.add_parser("inject_font", help="Takes a folder of 8x8 BMP images with their names as SJIS hex, and overwrites the character graphics in the ROM.")
+    inject_font_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
+    inject_font_parser.add_argument("--font_path", "-f", help="Optional. Path of font folder with 8x8 BMP images to inject. Can be an exact or relative path.")
+    inject_font_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
     
     args = parser.parse_args()
     
+    #---------------------------- EXTRACTION COMMANDS --------------------------------
     if args.command == "extract_font":
-        out_path = Path(args.output_folder) if args.output_folder else None
-        sjis_tbl_path = Path(args.sjis_table) if args.sjis_table else None
-        extract_chars_and_draw(args.rompath, out_path=out_path, sjis_tbl_path=sjis_tbl_path)
+        kwargs = {}
+        if args.output_folder:
+            kwargs["out_path"] = Path(args.output_folder)
+        if args.sjis_table:
+            kwargs["sjis_tbl_path"] = Path(args.sjis_table)
+        extract_chars_and_draw(args.rompath, **kwargs)
+    
+    #---------------------------- INJECTION COMMANDS ----------------------------------  
+    if args.command == "inject_font":
+        kwargs = {}
+        if args.input_rompath:
+            kwargs["input_rom_path"] = Path(args.input_rompath)
+        if args.font_path:
+            kwargs["font_path"] = Path(args.font_path)
+        if args.output_rompath:
+            kwargs["output_rom_path"] = Path(args.output_rompath)
+        inject_font(**kwargs)
