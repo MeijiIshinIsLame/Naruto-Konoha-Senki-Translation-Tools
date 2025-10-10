@@ -1,0 +1,13 @@
+
+<SJIS>|ｪ</SJIS>
+<HEX>0832</HEX>
+<SJIS>擡</SJIS>
+<HEX>0832</HEX>
+<SJIS>ｺｪ</SJIS>
+<HEX>0802000100080101</HEX>
+<SJIS>１ターン目だってばよぉ！</SJIS>
+<HEX>0000080101</HEX>
+<SJIS>２ターン目だってばよぉ！</SJIS>
+<HEX>0000080101</HEX>
+<SJIS>３ターン目だってばよぉ！</SJIS>
+<HEX>000000</HEX>

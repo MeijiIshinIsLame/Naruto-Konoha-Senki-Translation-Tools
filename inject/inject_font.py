@@ -1,6 +1,7 @@
 import io
 import shutil
 from pathlib import Path
+from utils import helpers
 
 BLACK = "11"
 GRAY = "01"
@@ -51,9 +52,9 @@ def calculate_insert_position(sjis):
     return start
     
 def inject_font(
-    input_rom_path=None,
+    input_rompath=None,
     font_path=Path("inject/font"),
-    output_rom_path=Path("game/Naruto - Konoha Senki English translation.gba")
+    output_rompath=Path("game/Naruto - Konoha Senki English translation.gba")
 ):
     try:
         fontfiles = [
@@ -67,15 +68,7 @@ def inject_font(
     except NotADirectoryError:
         raise NotADirectoryError(f"{font_path} is not a directory.")
         
-    rom = Path()
-    if output_rom_path.exists():
-        rom = output_rom_path
-    else:
-        if input_rom_path is None:
-            raise ValueError("No input ROM path provided and output ROM doesn't exist. Put a ROM in ./game or use argument --input_rom_path")
-        output_rom_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(input_rom_path, output_rom_path)
-        rom = output_rom_path
+    rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
         
     for fontfile in fontfiles:
         b = convert_bmp_bytes(fontfile)
