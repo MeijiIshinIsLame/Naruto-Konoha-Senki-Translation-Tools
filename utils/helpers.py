@@ -46,3 +46,8 @@ def get_files(path: Path):
     except NotADirectoryError:
         raise NotADirectoryError(f"{path} is not a directory. It has been created, but needs to be filled with files.")
     return files
+    
+def overwrite_output_rom(source, dest=defaults.OUTPUT_ROM):
+    if dest.exists():
+        dest.unlink() #delete rom
+        shutil.copy(source, dest)

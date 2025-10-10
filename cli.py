@@ -1,5 +1,7 @@
 import argparse
 from pathlib import Path
+from utils import helpers
+from config import defaults
 from extract.extract_font import extract_chars_and_draw
 from inject.inject_font import inject_font
 from inject.inject_dialog_scripts import inject_dialog_scripts
@@ -19,12 +21,14 @@ def parse_args():
     inject_font_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
     inject_font_parser.add_argument("--font_path", "-f", help="Optional. Path of font folder with 8x8 BMP images to inject. Can be an exact or relative path.")
     inject_font_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
+    inject_font_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
     
     #---------------------------- INJECT DIALOGS ---------------------------------
-    inject_font_parser = subparsers.add_parser("inject_dialogs", help="Takes a folder of dialogs, convert them to binary, replace their pointers, and insert the pointers + dialogs into ROM.")
-    inject_font_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
-    inject_font_parser.add_argument("--scripts_path", "-f", help="Optional. Path of font folder with dialogs to inject. Can be an exact or relative path.")
-    inject_font_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
+    inject_dialog_parser = subparsers.add_parser("inject_dialogs", help="Takes a folder of dialogs, convert them to binary, replace their pointers, and insert the pointers + dialogs into ROM.")
+    inject_dialog_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
+    inject_dialog_parser.add_argument("--scripts_path", "-f", help="Optional. Path of font folder with dialogs to inject. Can be an exact or relative path.")
+    inject_dialog_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
+    inject_dialog_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
     
     args = parser.parse_args()
     
@@ -41,19 +45,23 @@ def parse_args():
     if args.command == "inject_font":
         kwargs = {}
         if args.input_rompath:
-            kwargs["input_rom_path"] = Path(args.input_rompath)
+            kwargs["input_rompath"] = Path(args.input_rompath)
         if args.font_path:
             kwargs["font_path"] = Path(args.font_path)
         if args.output_rompath:
-            kwargs["output_rom_path"] = Path(args.output_rompath)
+            kwargs["output_rompath"] = Path(args.output_rompath)
         inject_font(**kwargs)
         
     if args.command == "inject_dialogs":
         kwargs = {}
         if args.input_rompath:
-            kwargs["input_rom_path"] = Path(args.input_rompath)
+            kwargs["input_rompath"] = Path(args.input_rompath)
         if args.scripts_path:
-            kwargs["font_path"] = Path(args.scripts_path)
+            kwargs["scripts_path"] = Path(args.scripts_path)
         if args.output_rompath:
-            kwargs["output_rom_path"] = Path(args.output_rompath)
+            kwargs["output_rompath"] = Path(args.output_rompath)
+        if args.overwrite_output_rom:
+            #try to get output path from kwargs, otherwise use default
+            dest = kwargs.get("output_rompath", defaults.OUTPUT_ROM)
+            helpers.overwrite_output_rom(source=kwargs["input_rompath"], dest=dest)
         inject_dialog_scripts(**kwargs)

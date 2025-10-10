@@ -64,7 +64,7 @@ def inject_script(pos, script, f, output_rompath=defaults.OUTPUT_ROM):
     f.seek(pos)
     f.write(b)
 
-def inject_dialog_scripts(input_rompath=None, scripts_path=defaults.SCRIPTS_PATH, output_rompath=defaults.OUTPUT_ROM, ):
+def inject_dialog_scripts(input_rompath=None, scripts_path=defaults.SCRIPTS_PATH, output_rompath=defaults.OUTPUT_ROM):
     """inject all the dialog scripts into ROM"""
     print(scripts_path.resolve())
     files = helpers.get_files(path=scripts_path)
