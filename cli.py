@@ -26,7 +26,7 @@ def parse_args():
     #---------------------------- INJECT DIALOGS ---------------------------------
     inject_dialog_parser = subparsers.add_parser("inject_dialogs", help="Takes a folder of dialogs, convert them to binary, replace their pointers, and insert the pointers + dialogs into ROM.")
     inject_dialog_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
-    inject_dialog_parser.add_argument("--scripts_path", "-f", help="Optional. Path of font folder with dialogs to inject. Can be an exact or relative path.")
+    inject_dialog_parser.add_argument("--scripts_path", "-f", help="Optional. Path of folder with dialogs to inject. Can be an exact or relative path.")
     inject_dialog_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
     inject_dialog_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
     
