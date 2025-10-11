@@ -18,7 +18,7 @@ def ensure_output_rompath(input_rompath=None, output_rompath=defaults.OUTPUT_ROM
     return rom
 
 #a bunch of FF is perfect for inserting stuff!
-def find_juicy_insert_position(size, start=defaults.INSERT_STARTPOS, rompath=defaults.OUTPUT_ROM):
+def find_juicy_insert_position(size, start=defaults.BLANKSPACE_STARTPOS, rompath=defaults.OUTPUT_ROM):
     """Find offset of the first `size` bytes all set to 0xFF starting from `start`."""
     all_ff = b'\xff' * size
     with open(rompath, "rb") as f:
@@ -48,6 +48,8 @@ def get_files(path: Path):
     return files
     
 def overwrite_output_rom(source, dest=defaults.OUTPUT_ROM):
+    print("overwriting output ROM...")
     if dest.exists():
         dest.unlink() #delete rom
         shutil.copy(source, dest)
+    print("Finished!")

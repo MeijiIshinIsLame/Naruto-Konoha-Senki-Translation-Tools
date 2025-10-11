@@ -1,5 +1,6 @@
 import io
 import shutil
+from tqdm import tqdm
 from pathlib import Path
 from utils import helpers
 
@@ -69,12 +70,12 @@ def inject_font(
         raise NotADirectoryError(f"{font_path} is not a directory.")
         
     rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
-        
-    for fontfile in fontfiles:
+    
+    print("Inserting font...")
+    for fontfile in tqdm(fontfiles):
         b = convert_bmp_bytes(fontfile)
         sjis = int(fontfile.stem, 16)
         start = calculate_insert_position(sjis)
-        print(f"inserting {hex(sjis)} at 0x{hex(start)}")
         with open(rom, "r+b") as f:
             f.seek(start)
             f.write(b)
