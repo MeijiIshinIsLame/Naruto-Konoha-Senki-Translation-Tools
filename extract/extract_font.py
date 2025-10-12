@@ -16,7 +16,6 @@ def load_sjis_table(path=Path("config/sjis-utf8-1byte.tbl")):
                 sjis[hv] = char
             except ValueError:
                 print(f"ValueError: skipping {line}")
-    print(sjis)
     return sjis
 
 #extract the character bytes from ROM
@@ -27,8 +26,7 @@ def extract_char_bytes(f, hv):
     final_offset = (hv - initial_offset) << 4
     start = start_address + final_offset
     f.seek(start)
-    b = f.read(16)
-    return b
+    return f.read(16)
 
 #draw image of character from charbytes
 def draw_image(path, b):
@@ -42,8 +40,8 @@ def draw_image(path, b):
         "00": WHITE,
         "10": BLACK
     }
-    j = 0
-    for i, one_byte in enumerate(b):
+    i = 0
+    for one_byte in b:
         eight_bits = one_byte
         bits = f"{one_byte:08b}"
         chunks = [
@@ -54,10 +52,10 @@ def draw_image(path, b):
         ]
         chunks = list(reversed(chunks))
         for bpair in chunks:
-            x = j % width
-            y = j // width
+            x = i % width
+            y = i // width
             pixels[x, y] = byte_to_color[bpair]
-            j+=1
+            i+=1
     img.save(path)   
         
 '''

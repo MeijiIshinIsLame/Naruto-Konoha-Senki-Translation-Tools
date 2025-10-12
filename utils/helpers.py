@@ -13,7 +13,7 @@ def ensure_output_rompath(input_rompath=None, output_rompath=defaults.OUTPUT_ROM
         if input_rompath is None:
             raise ValueError("No input ROM path provided and output ROM doesn't exist. Put a ROM in ./game or use argument --input_rompath")
         output_rompath.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(input_rompath, outputrom_path)
+        shutil.copyfile(input_rompath, output_rompath)
         rom = output_rompath
     return rom
 

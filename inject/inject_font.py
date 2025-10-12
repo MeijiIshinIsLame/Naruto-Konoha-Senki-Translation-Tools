@@ -3,6 +3,7 @@ import shutil
 from tqdm import tqdm
 from pathlib import Path
 from utils import helpers
+from config import defaults
 
 BLACK = "11"
 GRAY = "01"
@@ -52,11 +53,7 @@ def calculate_insert_position(sjis):
     start = start_address + final_offset
     return start
     
-def inject_font(
-    input_rompath=None,
-    font_path=Path("inject/font"),
-    output_rompath=Path("game/Naruto - Konoha Senki English translation.gba")
-):
+def inject_font(input_rompath=None, font_path=defaults.INJECT_FONT_PATH, output_rompath=defaults.OUTPUT_ROM):
     try:
         fontfiles = [
             f for f in font_path.iterdir()

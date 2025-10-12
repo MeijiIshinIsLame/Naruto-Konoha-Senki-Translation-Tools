@@ -13,31 +13,31 @@
 <HEX>00110001</HEX>
 <SJIS>narutards rise</SJIS>
 <HEX>0002012c00082c01</HEX>
-<SJIS>「ナルト‥‥‥　おまえ　オレのおごりだと
-えんりょせず　たべるな‥‥‥　まったく！」</SJIS>
+<SJIS>Naruto is gay</SJIS>
 <HEX>00080101</HEX>
-<SJIS>「あのさ！　あのさ！　きょうからオレ
-ほんとに　忍者（にんじゃ）になったんだよな！！」</SJIS>
+<SJIS>abcdefghijklmnopq
+rstuvwxyzABCDEFGHI
+JKLMNOPQRSTUVWXYZ</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「ああ　たんとうきょうしのオレがみとめてやる！」</SJIS>
+<SJIS>Funky symbols?</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「おまえは忍者学校（アカデミー）をそつぎょうした
-りっぱな木ノ葉の里（このはのさと）の忍者だ！」</SJIS>
+<SJIS>1234567890
+!@#$%^&*()
+{}[]</SJIS>
 <HEX>0004000100080101</HEX>
-<SJIS>「ねぇ　ねぇ　イルカ先生（せんせい）！
-おねがいがあんだけどォ‥‥」</SJIS>
+<SJIS>How does this sentence look?</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「なんだ？」</SJIS>
+<SJIS>Pilliam Street.</SJIS>
 <HEX>00080101</HEX>
-<SJIS>「おかわりしても　いいかなぁーって‥‥‥」</SJIS>
+<SJIS>Keoki is gay!!!!!</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「なに！？　…しかたないヤツだな‥‥‥
-あと　いっぱいだけだぞ！！」</SJIS>
+<SJIS>Ore ha chinchin ga
+daisuki nandayo!!!</SJIS>
 <HEX>0004000101080101</HEX>
-<SJIS>「さすがは　イルカ先生だってばよ！
-じゃあ！　じゃあ！　つぎは…　そーだなー‥‥‥」</SJIS>
+<SJIS>[GIMME PILLY]</SJIS>
 <HEX>00080101</HEX>
-<SJIS>「つぎも　やっぱミソ！」</SJIS>
+<SJIS>"quotes still look
+retarded?"</SJIS>
 <HEX>0002013500083501</HEX>
 <SJIS>「あいかわらず　いいたべっぷりじゃねえか」</SJIS>
 <HEX>00080101</HEX>
