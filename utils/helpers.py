@@ -34,18 +34,32 @@ def find_juicy_insert_position(size, start=defaults.BLANKSPACE_STARTPOS, rompath
     return None
     
     
-def get_files(path: Path):
+def get_files(path: Path, extension=None):
     """get all files in a folder + error handling"""
     path.mkdir(parents=True, exist_ok=True)
-    try:
-        files = [f for f in path.iterdir() if f.is_file()]
-        if not files:
-                raise ValueError(f"No files in path {path}.")
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Folder {path} not found. It has been created, but needs to be filled with files.")
-    except NotADirectoryError:
-        raise NotADirectoryError(f"{path} is not a directory. It has been created, but needs to be filled with files.")
-    return files
+    if extension:
+        try:
+            files = [
+            f for f in path.iterdir()
+            if f.is_file() and f.suffix.lower() == extension
+        ]
+            if not files:
+                    raise ValueError(f"No files in path {path}.")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Files in {path} not found. The folder has been created, but needs to be filled with files.")
+        except NotADirectoryError:
+            raise NotADirectoryError(f"{path} is not a directory.")
+        return files
+    else:
+        try:
+            files = [f for f in path.iterdir() if f.is_file()]
+            if not files:
+                    raise ValueError(f"No files in path {path}.")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Files in {path} not found. The folder has been created, but needs to be filled with files.")
+        except NotADirectoryError:
+            raise NotADirectoryError(f"{path} is not a directory.")
+        return files
     
 def overwrite_output_rom(source, dest=defaults.OUTPUT_ROM):
     print("overwriting output ROM...")

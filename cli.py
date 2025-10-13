@@ -5,6 +5,7 @@ from config import defaults
 from extract.extract_font import extract_chars_and_draw
 from inject.inject_font import inject_font
 from inject.inject_dialog_scripts import inject_dialog_scripts
+from inject.inject_asm import prepare_and_inject_asm
 
 def parse_args():
     parser = argparse.ArgumentParser(description="A CLI tool for extracting and injecting files to Naruto Konoha Senki")
@@ -29,6 +30,12 @@ def parse_args():
     inject_dialog_parser.add_argument("--scripts_path", "-f", help="Optional. Path of folder with dialogs to inject. Can be an exact or relative path.")
     inject_dialog_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
     inject_dialog_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
+    
+    #---------------------------- INJECT ASM ---------------------------------    
+    inject_asm_parser = subparsers.add_parser("inject_asm", help="Takes a ROM and patches is with the files located in the 'inject' folder.")
+    inject_asm_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
+    inject_asm_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
+    inject_asm_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
     
     #---------------------------- INJECT ALL ---------------------------------
     patch_rom_parser = subparsers.add_parser("patch_rom", help="Takes a ROM and patches is with the files located in the 'inject' folder.")
@@ -76,6 +83,18 @@ def parse_args():
             helpers.overwrite_output_rom(source=kwargs["input_rompath"], dest=dest)
         inject_dialog_scripts(**kwargs)
         
+    if args.command == "inject_asm":
+        kwargs = {}
+        if args.input_rompath:
+            kwargs["input_rompath"] = Path(args.input_rompath)
+        if args.output_rompath:
+            kwargs["output_rompath"] = Path(args.output_rompath)
+        if args.overwrite_output_rom:
+            #try to get output path from kwargs, otherwise use default
+            dest = kwargs.get("output_rompath", defaults.OUTPUT_ROM)
+            helpers.overwrite_output_rom(source=kwargs["input_rompath"], dest=dest)
+        prepare_and_inject_asm(**kwargs)
+        
     if args.command == "patch_rom":
         kwargs = {}
         if args.input_rompath:
@@ -89,3 +108,4 @@ def parse_args():
         #do it all, dawg!
         inject_font(**kwargs)
         inject_dialog_scripts(**kwargs)
+        prepare_and_inject_asm(**kwargs)
