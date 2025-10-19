@@ -3,6 +3,7 @@ from pathlib import Path
 from utils import helpers
 from config import defaults
 from extract.extract_font import extract_chars_and_draw
+from extract.extract_entities import extract_entities
 from inject.inject_font import inject_font
 from inject.inject_dialog_scripts import inject_dialog_scripts
 from inject.inject_asm import prepare_and_inject_asm
@@ -16,6 +17,11 @@ def parse_args():
     extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.")
     extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font images to. Can be an exact or relative path.")
     extract_font_parser.add_argument("--sjis_table", "-s", help="Optional. Path to the SJIS table file. Can be an exact or relative path.")
+    
+    #---------------------------- EXTRACT NAMES AND DESCRIPTIONS --------------
+    extract_font_parser = subparsers.add_parser("extract_entities", help="Extract names and descriptions of characters and items to ./extract/entities")
+    extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font text files to. Can be an exact or relative path.")
     
     #---------------------------- INJECT FONT ---------------------------------
     inject_font_parser = subparsers.add_parser("inject_font", help="Takes a folder of 8x8 BMP images with their names as SJIS hex, and overwrites the character graphics in the ROM.")
@@ -53,6 +59,12 @@ def parse_args():
         if args.sjis_table:
             kwargs["sjis_tbl_path"] = Path(args.sjis_table)
         extract_chars_and_draw(args.rompath, **kwargs)
+        
+    if args.command == "extract_entities":
+        kwargs = {}
+        if args.output_folder:
+            kwargs["out_path"] = Path(args.output_folder)
+        extract_entities(Path(args.rompath), **kwargs)
     
     #---------------------------- INJECTION COMMANDS ----------------------------------  
     if args.command == "inject_font":
