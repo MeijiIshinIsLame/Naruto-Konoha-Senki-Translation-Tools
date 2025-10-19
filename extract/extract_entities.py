@@ -22,7 +22,7 @@ def read_until(f, exit_byte=EXIT_BYTE):
         b = f.read(1)
     return the_bytes
 
-def extract_entities(input_rompath, output_folder=Path("entities")):
+def extract_entities(input_rompath, output_folder=Path("extract/entities")):
     print("Extracting Entities...")
     output_folder.mkdir(parents=True, exist_ok=True)
     ptrs = PointerList(start_addr=START, end_addr=END, rompath=input_rompath)
