@@ -35,8 +35,3 @@ def extract_entities(input_rompath, output_folder=Path("extract/entities")):
                     decoded_text = b.decode('shift-jis', errors='replace')
                     fout.write(decoded_text)
     print("Finished!")
-                    
-                    
-                
-           
-        
