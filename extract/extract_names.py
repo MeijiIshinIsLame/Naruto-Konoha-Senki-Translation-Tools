@@ -1,0 +1,3 @@
+START = 
+END = 
+STOP_READING = b'\x00'
