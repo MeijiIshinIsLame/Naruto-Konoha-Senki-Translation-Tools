@@ -1,5 +1,0 @@
-
-<SJIS>b«</SJIS>
-<HEX>0832</HEX>
-<SJIS>ƒ«</SJIS>
-<HEX>0832</HEX>

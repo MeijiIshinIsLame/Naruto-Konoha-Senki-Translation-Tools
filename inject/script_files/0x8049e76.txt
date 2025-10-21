@@ -9,39 +9,51 @@
 <HEX>15031b00</HEX>
 <ADDR>6aa90408</ADDR>
 <HEX>1b0400230002230003020001012001</HEX>
-<SJIS>narutard</SJIS>
+<SJIS>Naruto Uzumaki</SJIS>
 <HEX>00110001</HEX>
-<SJIS>narutards rise</SJIS>
+<SJIS>Pwah! Ichiraku's ramen is
+the best, believe it!</SJIS>
 <HEX>0002012c00082c01</HEX>
-<SJIS>Naruto is gay</SJIS>
+<SJIS>Naruto...I know I said
+I was treating...but you
+really don't hold back,
+do you?</SJIS>
 <HEX>00080101</HEX>
-<SJIS>abcdefghijklmnopq
-rstuvwxyzABCDEFGHI
-JKLMNOPQRSTUVWXYZ</SJIS>
+<SJIS>Hey! Hey! Starting today,
+I'm a real ninja,
+believe it!</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>Funky symbols?</SJIS>
+<SJIS>That's right.
+As your instructor,
+I acknowledge it.</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>1234567890
-!@#$%^&*()
-{}[]</SJIS>
+<SJIS>You've graduated from
+The Academy. You're
+a Ninja of the
+Hidden Leaf Village!</SJIS>
 <HEX>0004000100080101</HEX>
-<SJIS>How does this sentence look?</SJIS>
+<SJIS>Hey, hey! Iruka-sensei!
+Can I ask you
+a favor?</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>Pilliam Street.</SJIS>
+<SJIS>What is it?</SJIS>
 <HEX>00080101</HEX>
-<SJIS>Keoki is gay!!!!!</SJIS>
+<SJIS>Can I get seconds?</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>Ore ha chinchin ga
-daisuki nandayo!!!</SJIS>
+<SJIS>What?! You're out of
+control, Naruto...
+Just one bowl, okay?</SJIS>
 <HEX>0004000101080101</HEX>
-<SJIS>[GIMME PILLY]</SJIS>
+<SJIS>I knew you'd come
+through, Iruka-Sensei!
+Next up, let's see...</SJIS>
 <HEX>00080101</HEX>
-<SJIS>"quotes still look
-retarded?"</SJIS>
+<SJIS>I'll get Miso again!</SJIS>
 <HEX>0002013500083501</HEX>
-<SJIS>「あいかわらず　いいたべっぷりじゃねえか」</SJIS>
+<SJIS>I see you've still
+got a big appetite.</SJIS>
 <HEX>00080101</HEX>
-<SJIS>「へへへ‥‥‥」</SJIS>
+<SJIS>heheheh...</SJIS>
 <HEX>0002012c0004000100082c01</HEX>
 <SJIS>「きょう　オレがラーメンを　おごってるのは
 ぶじにアカデミーを　そつぎょうして‥‥‥」</SJIS>

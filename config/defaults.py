@@ -3,6 +3,7 @@ from pathlib import Path
 
 ROOTPATH = None
 INJECT_SCRIPTS_PATH = Path("inject/script_files")
+INJECT_ENTITIES_PATH = Path("inject/entities")
 INJECT_FONT_PATH = Path("inject/font")
 OUTPUT_ROM = Path("game/Naruto - Konoha Senki English translation.gba")
 BLANKSPACE_STARTPOS = 0x5AE750
