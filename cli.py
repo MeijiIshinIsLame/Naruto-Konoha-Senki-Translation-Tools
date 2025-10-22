@@ -4,6 +4,7 @@ from utils import helpers
 from config import defaults
 from extract.extract_font import extract_chars_and_draw
 from extract.extract_entities import extract_entities
+from extract.extract_name_labels import extract_name_labels
 from inject.inject_font import inject_font
 from inject.inject_dialog_scripts import inject_dialog_scripts
 from inject.inject_entities import inject_entities
@@ -15,13 +16,18 @@ def parse_args():
     
     #---------------------------- EXTRACT FONT --------------------------------
     extract_font_parser = subparsers.add_parser("extract_font", help="Extract 1 byte character SJIS font as BMP files to ./extract/font")
-    extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
     extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font images to. Can be an exact or relative path.")
     extract_font_parser.add_argument("--sjis_table", "-s", help="Optional. Path to the SJIS table file. Can be an exact or relative path.")
     
-    #---------------------------- EXTRACT NAMES AND DESCRIPTIONS --------------
+    #---------------------------- EXTRACT NAMES AND DESCRIPTIONS (items/moves) --------------
     extract_font_parser = subparsers.add_parser("extract_entities", help="Extract names and descriptions of characters and items to ./extract/entities")
-    extract_font_parser.add_argument("rompath", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font text files to. Can be an exact or relative path.")
+    
+    #---------------------------- EXTRACT NAME LABELS (character dialog names and places) --------------
+    extract_font_parser = subparsers.add_parser("extract_name_labels", help="Extract names of characters and places in dialog scripts to ./extract/name_labels")
+    extract_font_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
     extract_font_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font text files to. Can be an exact or relative path.")
     
     #---------------------------- INJECT FONT ---------------------------------
@@ -73,6 +79,12 @@ def parse_args():
         if args.output_folder:
             kwargs["out_path"] = Path(args.output_folder)
         extract_entities(Path(args.rompath), **kwargs)
+        
+    if args.command == "extract_name_labels":
+        kwargs = {}
+        if args.output_folder:
+            kwargs["out_path"] = Path(args.output_folder)
+        extract_name_labels(Path(args.rompath), **kwargs)
     
     #---------------------------- INJECTION COMMANDS ----------------------------------  
     if args.command == "inject_font":
