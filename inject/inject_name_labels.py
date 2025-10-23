@@ -23,6 +23,7 @@ def get_sjis_and_zeros(f):
 def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, files=Path("inject/name_labels")):
     """check if name bytes can be injected without disruptig offset,
        then inject."""
+    print("Inserting Name Labels")
     rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
     files = helpers.get_files(files, ".txt")
     files = sorted(files, key=lambda f: int(Path(f).stem, 16))
