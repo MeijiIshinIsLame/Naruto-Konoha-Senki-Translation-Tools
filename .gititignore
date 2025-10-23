@@ -1,0 +1,6 @@
+# Ignore all Game Boy Advance ROM and save files
+*.gba
+*.sav
+
+# Ignore all Python __pycache__ directories
+__pycache__/
