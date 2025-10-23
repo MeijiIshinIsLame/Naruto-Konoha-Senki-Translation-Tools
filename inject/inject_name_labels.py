@@ -25,23 +25,22 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
        then inject."""
     rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
     files = helpers.get_files(files, ".txt")
+    files = sorted(files, key=lambda f: int(Path(f).stem, 16))
     with open(rom, "r+b") as f:
-        for file in tqdm(files):
+        for i, file in enumerate(tqdm(files)):
             start = int(file.stem, 16)
             f.seek(start)
-            test = get_sjis_and_zeros(f)
             maxlen = len(get_sjis_and_zeros(f))
             filesize = file.stat().st_size
             if filesize <= maxlen:
                 f.seek(start)
                 with open(file, "rb") as f2:
                     data = f2.read()
-                    zeros = EXIT_BYTE * (maxlen - len(data))
+                    zeros = EXIT_BYTE * (maxlen - len(data) - 1)
                     data += zeros
                     f.write(data)
             else:
                 print(f"File {file.stem} cannot be written because it is too long\n filesize: {filesize}, maxlen: {maxlen}")
-                print(test)
             
     
     
