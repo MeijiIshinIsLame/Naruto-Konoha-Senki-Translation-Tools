@@ -21,7 +21,6 @@ namelabel_check:
 	bx lr
 
 big_text:
-	push {r3}
 	mov r1, 82h
 	ldrb r0,[r2]
 	cmp r0, 40h
@@ -38,23 +37,25 @@ jump_to_lr:
 	bx lr
 
 make_lowercase_zenkaku_sjis:
+	push {r3}
 	mov r3, 20h
 	add r0, r0, r3
 	lsl r1, r1, 8h
 	pop {r3}
 	push {r9}
-	pop {r7}
 	pop {r6}
+	pop {r7}
 	bl 0x08066300
 	
 make_uppercase_zenkaku_sjis:
+	push {r3}
 	mov r3, 1Fh
 	add r0, r0, r3
 	lsl r1, r1, 8h
 	pop {r3}
 	push {r9}
-	pop {r7}
 	pop {r6}
+	pop {r7}
 	bl 0x08066300
 
 .pool
