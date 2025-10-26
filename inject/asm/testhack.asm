@@ -2,7 +2,12 @@
 .open "{source}","{dest}",0x08000000 
 
 //============== HOOK ======================
-	
+.org 0x080664ba
+	bl adjust_increment
+
+.org 0x080663a0
+	bl adjust_increment_2
+
 .org 0x0806627e
 	bl namelabel_check
 	pop {r6, r7}
@@ -57,6 +62,17 @@ make_uppercase_zenkaku_sjis:
 	pop {r6}
 	pop {r7}
 	bl 0x08066300
+
+adjust_increment:
+	sub r0, 1h
+	ldrb r0, [r0]
+	bx lr
+
+adjust_increment_2:
+	sub r0, 1h
+	str r0, [sp, 1Ch]
+	bx lr
+
 
 .pool
 lower_addr:
