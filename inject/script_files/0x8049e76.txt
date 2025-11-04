@@ -55,23 +55,26 @@ got a big appetite.</SJIS>
 <HEX>00080101</HEX>
 <SJIS>heheheh...</SJIS>
 <HEX>0002012c0004000100082c01</HEX>
-<SJIS>「きょう　オレがラーメンを　おごってるのは
-ぶじにアカデミーを　そつぎょうして‥‥‥」</SJIS>
+<SJIS>I'm treating you to Ramen
+to celebrate your
+graduation...</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「これから　忍者として　いちにんまえになっていく
-おまえの　かどでを　いわうためなんだぞ！」</SJIS>
+<SJIS>...and to celebrate your
+journey ahead to become a
+respectable Ninja.</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「忍として　ほんとうに　たいへんなのは
-これからだ」</SJIS>
+<SJIS>The true challenge of being
+a Shinobi starts now.</SJIS>
 <HEX>00082c01</HEX>
-<SJIS>「そのことを　こころしてだなあ‥‥‥」</SJIS>
+<SJIS>Take that to heart, and...</SJIS>
 <HEX>0002013500083501</HEX>
-<SJIS>「へい！　ミソラーメン　おまちっ！！」</SJIS>
+<SJIS>One Miso Ramen coming
+right up!</SJIS>
 <HEX>0004000101080101</HEX>
-<SJIS>「うっひょー！　うまそーだってばよ！！
-いっただっきまーす！！！」</SJIS>
+<SJIS>Whoa-!! That looks amazing!
+Time to dig in!</SJIS>
 <HEX>0002012c00082c01</HEX>
-<SJIS>「コラ！　きいてるのか！！」</SJIS>
+<SJIS>Are you even listening?!</SJIS>
 <HEX>0004000100080101</HEX>
 <SJIS>「モグモグ…　はにぃ？　ひいてうってばよ‥‥‥」</SJIS>
 <HEX>00082c01</HEX>

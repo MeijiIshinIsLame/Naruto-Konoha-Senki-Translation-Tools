@@ -214,4 +214,4 @@ def parse_args():
         inject_entities(**kwargs)
         inject_name_labels(**kwargs)
         inject_menu(**kwargs)
-        prepare_and_inject_asm(**kwargs)
+        #prepare_and_inject_asm(**kwargs)

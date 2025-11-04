@@ -13,12 +13,12 @@ def get_sjis_and_zeros(f):
     data = b
     while b != EXIT_BYTE:
         data += b
-        b = f.read(1) 
+        b = f.read(1)
     while b == EXIT_BYTE:
-        data += b 
+        data += b
         b = f.read(1)
     return data
-    
+
 
 def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, files=Path("inject/name_labels")):
     """check if name bytes can be injected without disruptig offset,
@@ -42,6 +42,5 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
                     f.write(data)
             else:
                 print(f"File {file.stem} cannot be written because it is too long\n filesize: {filesize}, maxlen: {maxlen}")
-            
-    
-    
+
+
