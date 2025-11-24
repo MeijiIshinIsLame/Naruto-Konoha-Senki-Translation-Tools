@@ -84,6 +84,7 @@ def parse_args():
     patch_rom_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
     patch_rom_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
     patch_rom_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
+    patch_rom_parser.add_argument("--skip_asm", "-s",  action='store_true', help="Skip ASM patching.")
     
     args = parser.parse_args()
     
@@ -214,4 +215,5 @@ def parse_args():
         inject_entities(**kwargs)
         inject_name_labels(**kwargs)
         inject_menu(**kwargs)
-        #prepare_and_inject_asm(**kwargs)
+        if not args.skip_asm:
+            prepare_and_inject_asm(**kwargs)

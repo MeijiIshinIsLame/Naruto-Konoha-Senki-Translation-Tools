@@ -16,6 +16,14 @@ That is why I'm doing all this weird naming and file copy stuff.
 
 asm_folder = Path("inject/asm")
 
+def the_os():
+    if os.name == 'nt':
+        return "Windows"
+    elif os.name == 'posix':
+        return "Linux"
+    else:
+        return "Unknown"
+
 def prepare_asm_files(input_rom=defaults.OUTPUT_ROM.name):
     """ASM files need to have the name of the ROM they're patching to,
        So we write it into the files, and make copies of them as -modified."""
@@ -41,7 +49,10 @@ def inject_asm_files():
     for file in tqdm(modified_asm_files):
         os.chdir(asm_folder)
         #run armips to inject the asm. We need to come back here for teh linux option as well.
-        subprocess.run(["armips.exe", file.name], capture_output=True, text=True, check=True)
+        if the_os() == "Windows":
+            subprocess.run(["armips.exe", file.name], capture_output=True, text=True, check=True)
+        else:
+            subprocess.run(["./armips", file.name], capture_output=True, text=True, check=True)
         os.chdir(base_cwd)
     print("Finished!")
     
