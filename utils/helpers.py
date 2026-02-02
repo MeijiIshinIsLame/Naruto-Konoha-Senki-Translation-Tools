@@ -3,6 +3,9 @@ import shutil
 from pathlib import Path
 from config import defaults
 
+def bytes_to_bits(b):
+    return format(b, '08b')
+
 #try our best to create an output ROM that we can edit
 def ensure_output_rompath(input_rompath=None, output_rompath=defaults.OUTPUT_ROM):
     """do all we can to make sure we have an output romfile to edit"""

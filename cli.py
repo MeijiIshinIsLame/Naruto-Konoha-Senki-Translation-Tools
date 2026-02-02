@@ -6,6 +6,7 @@ from extract.extract_font import extract_chars_and_draw
 from extract.extract_entities import extract_entities
 from extract.extract_name_labels import extract_name_labels
 from extract.extract_menu import extract_menu
+from extract.extract_waza_textgraphics import extract_waza_textgraphics
 from inject.inject_font import inject_font
 from inject.inject_dialog_scripts import inject_dialog_scripts
 from inject.inject_entities import inject_entities
@@ -35,6 +36,11 @@ def parse_args():
     
     #---------------------------- EXTRACT MENU --------------
     extract_menu_parser = subparsers.add_parser("extract_menu", help="Extract menu text to ./extract/menu")
+    extract_menu_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_menu_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font text files to. Can be an exact or relative path.")
+
+    #---------------------------- EXTRACT WAZA TEXTGRAPHICS --------------
+    extract_menu_parser = subparsers.add_parser("extract_waza_textgraphics", help="Extract waza text images to ./extract/images")
     extract_menu_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
     extract_menu_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font text files to. Can be an exact or relative path.")
 
@@ -114,6 +120,12 @@ def parse_args():
         if args.output_folder:
             kwargs["out_path"] = Path(args.output_folder)
         extract_menu(Path(args.rompath), **kwargs)
+
+    if args.command == "extract_waza_textgraphics":
+        kwargs = {}
+        if args.output_folder:
+            kwargs["out_path"] = Path(args.output_folder)
+        extract_waza_textgraphics(rom=Path(args.rompath))
 
     #---------------------------- INJECTION COMMANDS ----------------------------------  
     if args.command == "inject_font":

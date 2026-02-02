@@ -40,7 +40,7 @@ def prepare_asm_files(input_rom=defaults.OUTPUT_ROM.name):
             f.write(content)
     print("Finished!")
     
-def inject_asm_files():
+def inject_asm_files(input_rom):
     """Inject ASM files to ROM using armips."""
     print("Injecting ASM...")
     asm_files = helpers.get_files(path=asm_folder, extension=".asm")
@@ -54,6 +54,7 @@ def inject_asm_files():
         else:
             subprocess.run(["./armips", file.name], capture_output=True, text=True, check=True)
         os.chdir(base_cwd)
+        shutil.copy2(Path("inject/asm/output.gba"), input_rom)
     print("Finished!")
     
 def delete_modified_asm_files():
@@ -74,9 +75,10 @@ def prepare_and_inject_asm(input_rompath=None, output_rompath=defaults.OUTPUT_RO
         asm_files = None
     if asm_files:
         rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
-        shutil.copy(rom, Path(f"inject/asm/{rom.name}"))
+        local_armips_rom = Path(f"inject/asm/{rom.name}")
+        shutil.copy(rom, local_armips_rom)
         prepare_asm_files(rom.name)
-        inject_asm_files()
+        inject_asm_files(local_armips_rom)
         delete_modified_asm_files()
         shutil.copy(Path(f"{asm_folder}/output.gba"), rom)
         delete_gba_files()
