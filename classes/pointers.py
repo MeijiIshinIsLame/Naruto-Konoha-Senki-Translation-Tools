@@ -36,6 +36,9 @@ class PointerList:
 
     def __getitem__(self, index):
         return self.ptrs[index]
+
+    def __setitem__(self, index, value):
+        self.ptrs[index] = value
     
     def __iter__(self):
         return iter(self.ptrs)
@@ -55,3 +58,10 @@ class PointerList:
         for i, ptr in enumerate(self.ptrs):
             if ptr == old:
                 self.ptrs[i] = new
+
+def inject_ptrlist(ptrlist):
+    """Write pointers from pointerlist into ROM as bytes"""
+    with open(ptrlist.rompath, "r+b") as f:
+        f.seek(ptrlist.start_addr)
+        for ptr in ptrlist:
+            f.write(ptr)
