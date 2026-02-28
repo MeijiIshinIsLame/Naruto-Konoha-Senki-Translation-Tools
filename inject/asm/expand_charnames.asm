@@ -9,6 +9,8 @@
 namelabel_check:
 	;check if in range of charnames
 	push {r6, r7}
+	cmp r6, 0h
+	bne oops_go_back
 	ldr r6, =lower_addr
 	ldr r6, [r6]
 	ldr r7, =higher_addr
@@ -28,12 +30,21 @@ subvert_nametable:
 	ldr r1, [r1]
 	b finale
 	;we want to jump to my personal table with 2byte SJIS eng chars
-
+oops_go_back:
+	ldr r6, =addr_with_overwritten_inctructions
+	ldr r6, [r6]
+	cmp r6, r14
+	beq finale
+	bx lr
+	
 .pool
 lower_addr:
 	.word 0x085a57d0
 
 higher_addr:
-	.word 0x085a632f
+	.word 0x085a5f60
+
+addr_with_overwritten_inctructions:
+	.word 0x08066279
 
 .close

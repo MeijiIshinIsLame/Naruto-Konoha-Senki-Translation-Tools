@@ -70,3 +70,8 @@ def overwrite_output_rom(source, dest=defaults.OUTPUT_ROM):
         dest.unlink() #delete rom
         shutil.copy(source, dest)
     print("Finished!")
+
+
+def align_bytes_by_4(pos):
+    offby = pos % 4
+    pass

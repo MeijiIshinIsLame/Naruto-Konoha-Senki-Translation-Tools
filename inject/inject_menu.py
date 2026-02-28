@@ -33,6 +33,7 @@ def inject_menu(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, files=Pa
             start = int(NEW_BASE_ADDR) - 0x08000000 + offset
             newptr = Pointer.from_be_int(int(NEW_BASE_ADDR) + offset)
             oldptr = Pointer.from_be_int(int(file.stem, 16) + + 0x08000000)
+            #print(f"{hex(int(oldptr))} replaced by {hex(int(newptr))}")
 
             for sub_ptrlist in full_ptrlist:
                 sub_ptrlist.replace(oldptr, newptr)

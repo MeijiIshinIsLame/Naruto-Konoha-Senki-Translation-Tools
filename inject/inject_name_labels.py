@@ -20,6 +20,8 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
         for i, file in enumerate(tqdm(files)):
             with open(file, "rb") as fp:
                 data = fp.read()
+            #at this point we need to make them 4 byte aligned. we can still read exactly where they are,
+            #but this program is the one that needs to predict the byte alignment.
             start = int(file.stem, 16)
             pointer_saki += SPACING
             pointer = Pointer.from_be_int(pointer_saki + 0x8000000)
