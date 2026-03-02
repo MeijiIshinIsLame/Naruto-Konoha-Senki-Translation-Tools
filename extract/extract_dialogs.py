@@ -18,14 +18,15 @@ class DialogBuffer:
 
     def read_until(self, stopcode: bytes):
         b = b''
-        start = int(ptr) - 0x08000000
-        stopcode_check = f.read(len(stopcode))
-        self.f.seek(f.tell() - len(stopcode))
+        start = int(self.pointer) - 0x08000000
+        self.f.seek(start)
+        stopcode_check = self.f.read(len(stopcode))
+        self.f.seek(self.f.tell() - len(stopcode))
         while stopcode_check != stopcode:
             if not stopcode_check:
                 break
-            b += f.read(1)
-            stopcode_check = f.read(len(stopcode))
+            b += self.f.read(1)
+            stopcode_check = self.f.read(len(stopcode))
         return b
 
 class Dialog:
@@ -35,60 +36,67 @@ class Dialog:
         self.currentpos = 0
 
     def parse_data(self):
-        while currentpos <= len(self.data):
-            opcode = self.data[currentpos]
+        while self.currentpos <= len(self.data):
+            opcode = self.data[self.currentpos]
             epicly_parsed_data = process_opcode(opcode, self)
             self.parsed_data += epicly_parsed_data
             return self.parsed_data #i know we dont have to but just for readability
 
     def read(self, numbytes: int):
-        data = self.data[currentpos: currentpos + numbytes]
+        data = self.data[self.currentpos: self.currentpos + numbytes]
         self.currentpos += numbytes
         return DialogBytes(data)
 
     def read_the_rest(self):
         #we convert to bytes because if its only one byte it will be processed as an int lol
         #i dont make the rulez
-        data = bytes(self.data[currentpos:])
+        data = bytes(self.data[self.currentpos:])
         self.currentpos = len(data)
         return DialogBytes(data)
 
     def read_until_address(self):
         data_to_process = b''
-        addr_check = self.data[currentpos: currentpos + 4]
+        addr_check = self.data[self.currentpos: self.currentpos + 4]
         while not is_address(addr_check):
             if self.currentpos >= len(self.data):
                 break
-            data_to_process += self.read(1)
-            addr_check = self.data[currentpos: currentpos + 4]
-        return data_to_process
+            data_to_process += self.read(1).data
+            addr_check = self.data[self.currentpos: self.currentpos + 4]
+        return DialogBytes(data_to_process)
 
     def read_until_opcode(self):
         data_to_process = b''
-        read_2_ahead = self.data[currentpos: currentpos + 2]
+        read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
         while helpers.is_sjis(read_2_ahead):
             if self.currentpos >= len(self.data):
                 break
-            data_to_process += self.read(1)
-            read_2_ahead = self.data[currentpos: currentpos + 2]
-        return data_to_process
+            if helpers.is_2byte_sjis(read_2_ahead):
+                data_to_process += self.read(2).data
+            if helpers.is_1byte_sjis(bytes(read_2_ahead[0])):
+                data_to_process += self.read(1).data
+            read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
+            print("read 2 ahead", read_2_ahead.hex())
+        print("fuckin SJIS data: ", data_to_process)
+        return DialogBytes(data_to_process)
 
     def read_until_sjis(self):
         data_to_process = b''
-        read_2_ahead = self.data[currentpos: currentpos + 2]
+        read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
         while not helpers.is_sjis(read_2_ahead):
             if self.currentpos >= len(self.data):
                 break
-            data_to_process += self.read(1)
-            read_2_ahead = self.data[currentpos: currentpos + 2]
-        return data_to_process
+            data_to_process += self.read(1).data
+            read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
+
+        print("Non-SJIS data: ", data_to_process)
+        return DialogBytes(data_to_process)
 
     def oops_all_sjis_and_hex(self):
         processed_data = ""
-        while currentpos <= len(self.data):
-            data_to_process += DialogBytes(self.read_until_sjis()).process_as(HEX)
-            data_to_process += DialogBytes(self.read_until_opcode()).process_as(SJIS)
-        return processed_data
+        while self.currentpos <= len(self.data):
+            processed_data += self.read_until_sjis().process_as(HEX)
+            processed_data += self.read_until_opcode().process_as(SJIS_TEXT)
+        return DialogBytes(data_to_process)
 
 class DialogBytes:
     def __init__(self, data: bytes):
@@ -96,10 +104,11 @@ class DialogBytes:
 
     def process_as(self, how: int):
         if how == ADDRESS:
-            return f"<ADDR>{hex(self.data)}</ADDR>\n"
+            return f"<ADDR>{self.data.hex()}</ADDR>\n"
         if how == HEX:
-            return f"<HEX>{hex(self.data)}</HEX>\n"
+            return f"<HEX>{self.data.hex()}</HEX>\n"
         if how == SJIS_TEXT:
+            print(self.data)
             sjis_text = self.data.decode('shift_jis')
             return f"<SJIS>{sjis_text}</SJIS>\n<TRANSLATION>{sjis_text}</TRANSLATION>\n"
         return None
@@ -111,10 +120,10 @@ def process_opcode(opcode: int, dialog: Dialog):
     if opcode == 0x01:
         part1 = dialog.read(1).process_as(HEX)
         part2 = dialog.read_the_rest().process_as(SJIS_TEXT)
-        return = part1 + part2
+        return part1 + part2
 
     if opcode == 0x12:
-        header = dialog.read_opcode_until_sjis().process_as(HEX)
+        header = read_until_sjis().process_as(HEX)
         return header + dialog.oops_all_sjis_and_hex()
 
     if opcode == 0x15:
@@ -146,7 +155,7 @@ def process_opcode(opcode: int, dialog: Dialog):
         return part1 + part2
 
     if opcode == 0x1B:
-        header = dialog.read_opcode_until_sjis().process_as(HEX)
+        header = dialog.read_until_sjis().process_as(HEX)
         return header + dialog.oops_all_sjis_and_hex()
 
     if opcode == 0x0B:
@@ -155,7 +164,7 @@ def process_opcode(opcode: int, dialog: Dialog):
         return part1 + part2
 
     if opcode == 0x08:
-        part1 = dialog.read_opcode_until_sjis().process_as(HEX)
+        part1 = dialog.read_until_sjis().process_as(HEX)
         part2 = dialog.oops_all_sjis_and_hex()
         return part1 + part2
 
@@ -177,7 +186,7 @@ def process_opcode(opcode: int, dialog: Dialog):
     # opcodes not handled yet
     return dialog.oops_all_sjis_and_hex()
 
-def extract_dialogs(rom, out_path=Path("./script_files")):
+def extract_dialogs(rom, out_path=Path("./extract/script_files")):
     ptrs = PointerList(start_addr=0x60C78, end_addr=0x60FAB, rompath=rom)
     for ptr in ptrs:
         data = b''
