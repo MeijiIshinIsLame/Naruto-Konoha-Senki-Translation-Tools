@@ -1,0 +1,192 @@
+from pathlib import Path
+from utils import helpers
+from classes.pointers import Pointer, PointerList
+
+ADDRESS = 0
+HEX = 1
+SJIS_TEXT = 2
+STOPCODE = b'\x00\x00' #opcode that means end of dialog
+
+def is_address(b: bytes):
+    ptr = int.from_bytes(b, "little")
+    return 0x08000000 <= ptr <= 0x087ffff0
+
+class DialogBuffer:
+    def __init__(self, f: BinaryIO, pointer: Pointer):
+        self.f = f
+        self.pointer = pointer
+
+    def read_until(self, stopcode: bytes):
+        b = b''
+        start = int(ptr) - 0x08000000
+        stopcode_check = f.read(len(stopcode))
+        self.f.seek(f.tell() - len(stopcode))
+        while stopcode_check != stopcode:
+            if not stopcode_check:
+                break
+            b += f.read(1)
+            stopcode_check = f.read(len(stopcode))
+        return b
+
+class Dialog:
+    def __init__(self, data: bytes):
+        self.data = data
+        self.parsed_data = ""
+        self.currentpos = 0
+
+    def parse_data(self):
+        while currentpos <= len(self.data):
+            opcode = self.data[currentpos]
+            epicly_parsed_data = process_opcode(opcode, self)
+            self.parsed_data += epicly_parsed_data
+            return self.parsed_data #i know we dont have to but just for readability
+
+    def read(self, numbytes: int):
+        data = self.data[currentpos: currentpos + numbytes]
+        self.currentpos += numbytes
+        return DialogBytes(data)
+
+    def read_the_rest(self):
+        #we convert to bytes because if its only one byte it will be processed as an int lol
+        #i dont make the rulez
+        data = bytes(self.data[currentpos:])
+        self.currentpos = len(data)
+        return DialogBytes(data)
+
+    def read_until_address(self):
+        data_to_process = b''
+        addr_check = self.data[currentpos: currentpos + 4]
+        while not is_address(addr_check):
+            if self.currentpos >= len(self.data):
+                break
+            data_to_process += self.read(1)
+            addr_check = self.data[currentpos: currentpos + 4]
+        return data_to_process
+
+    def read_until_opcode(self):
+        data_to_process = b''
+        read_2_ahead = self.data[currentpos: currentpos + 2]
+        while helpers.is_sjis(read_2_ahead):
+            if self.currentpos >= len(self.data):
+                break
+            data_to_process += self.read(1)
+            read_2_ahead = self.data[currentpos: currentpos + 2]
+        return data_to_process
+
+    def read_until_sjis(self):
+        data_to_process = b''
+        read_2_ahead = self.data[currentpos: currentpos + 2]
+        while not helpers.is_sjis(read_2_ahead):
+            if self.currentpos >= len(self.data):
+                break
+            data_to_process += self.read(1)
+            read_2_ahead = self.data[currentpos: currentpos + 2]
+        return data_to_process
+
+    def oops_all_sjis_and_hex(self):
+        processed_data = ""
+        while currentpos <= len(self.data):
+            data_to_process += DialogBytes(self.read_until_sjis()).process_as(HEX)
+            data_to_process += DialogBytes(self.read_until_opcode()).process_as(SJIS)
+        return processed_data
+
+class DialogBytes:
+    def __init__(self, data: bytes):
+        self.data = data
+
+    def process_as(self, how: int):
+        if how == ADDRESS:
+            return f"<ADDR>{hex(self.data)}</ADDR>\n"
+        if how == HEX:
+            return f"<HEX>{hex(self.data)}</HEX>\n"
+        if how == SJIS_TEXT:
+            sjis_text = self.data.decode('shift_jis')
+            return f"<SJIS>{sjis_text}</SJIS>\n<TRANSLATION>{sjis_text}</TRANSLATION>\n"
+        return None
+
+def process_opcode(opcode: int, dialog: Dialog):
+    if dialog.currentpos > len(dialog.data):
+        return None
+
+    if opcode == 0x01:
+        part1 = dialog.read(1).process_as(HEX)
+        part2 = dialog.read_the_rest().process_as(SJIS_TEXT)
+        return = part1 + part2
+
+    if opcode == 0x12:
+        header = dialog.read_opcode_until_sjis().process_as(HEX)
+        return header + dialog.oops_all_sjis_and_hex()
+
+    if opcode == 0x15:
+        part1 = dialog.read(4).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        return part1 + part2
+
+    if opcode == 0x16:
+        return dialog.read_the_rest.process_as(HEX)
+
+    if opcode == 0x22:
+        part1 = dialog.read(16).process_as(HEX)
+        part2 = dialog.oops_all_sjis_and_hex()
+        return part1 + part2
+
+    if opcode == 0x32:
+        part1 = dialog.read(1).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        return part1 + part2
+
+    if opcode == 0x33:
+        part1 = dialog.read_until_address().process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        return part1 + part2
+
+    if opcode == 0x34:
+        part1 = dialog.read(4).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        return part1 + part2
+
+    if opcode == 0x1B:
+        header = dialog.read_opcode_until_sjis().process_as(HEX)
+        return header + dialog.oops_all_sjis_and_hex()
+
+    if opcode == 0x0B:
+        part1 = dialog.read(2).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        return part1 + part2
+
+    if opcode == 0x08:
+        part1 = dialog.read_opcode_until_sjis().process_as(HEX)
+        part2 = dialog.oops_all_sjis_and_hex()
+        return part1 + part2
+
+    if opcode == 0x1E:
+        return dialog.read_the_rest().process_as(HEX)
+
+    if opcode == 0x0C:
+        part1 = dialog.read(2).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        part3 = dialog.oops_all_sjis_and_hex()
+        return part1 + part2 + part3
+
+    if opcode == 0x07:
+        part1 = dialog.read(1).process_as(HEX)
+        part2 = dialog.read(4).process_as(ADDRESS)
+        part1 = dialog.read(1).process_as(HEX)
+        return part1 + part2 + part3
+
+    # opcodes not handled yet
+    return dialog.oops_all_sjis_and_hex()
+
+def extract_dialogs(rom, out_path=Path("./script_files")):
+    ptrs = PointerList(start_addr=0x60C78, end_addr=0x60FAB, rompath=rom)
+    for ptr in ptrs:
+        data = b''
+        filename = f"{str(ptr)}.txt"
+        filepath = out_path / filename
+        with open(rom, "rb") as f:
+            dialog_buffer = DialogBuffer(f, ptr)
+            data = dialog_buffer.read_until(STOPCODE)
+        processed_data = Dialog(data).parse_data()
+        with open(filepath, "w", encoding='shift_jis') as f:
+            f.write(processed_data)
+    print(ptrs)

@@ -7,6 +7,9 @@ class Pointer(bytes):
     def __int__(self):
         # interpret the bytes as a little-endian integer
         return int.from_bytes(self, "little")
+
+    def __str__(self):
+        return f"0x{int(self):08X}"
     
     @classmethod
     def from_be_bytes(cls, data: bytes):
@@ -42,7 +45,13 @@ class PointerList:
     
     def __iter__(self):
         return iter(self.ptrs)
-        
+
+    def __str__(self):
+        outstr = ""
+        for p in self.ptrs:
+            outstr += f"[{str(p)}] "
+        return outstr
+
     def populate(self, rompath: Path):
         """Populate offsets in range from a file handle"""
         with open(rompath, "rb") as f:

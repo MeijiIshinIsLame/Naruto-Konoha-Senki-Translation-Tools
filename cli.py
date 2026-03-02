@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 from utils import helpers
 from config import defaults
+from extract.extract_dialogs import extract_dialogs
 from extract.extract_font import extract_chars_and_draw
 from extract.extract_entities import extract_entities
 from extract.extract_name_labels import extract_name_labels
@@ -17,7 +18,12 @@ from inject.inject_asm import prepare_and_inject_asm
 def parse_args():
     parser = argparse.ArgumentParser(description="A CLI tool for extracting and injecting files to Naruto Konoha Senki")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    
+
+    #---------------------------- EXTRACT DIALOGS --------------------------------
+    extract_dialogs_parser = subparsers.add_parser("extract_dialogs", help="Extract all dialogs to ./extract/dialogs")
+    extract_dialogs_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
+    extract_dialogs_parser.add_argument("--output_folder", "-o", help="Optional. Path to save font images to. Can be an exact or relative path.")
+
     #---------------------------- EXTRACT FONT --------------------------------
     extract_font_parser = subparsers.add_parser("extract_font", help="Extract 1 byte character SJIS font as BMP files to ./extract/font")
     extract_font_parser.add_argument("--rompath", "-i", help="Path of the ROM to extract from. Can be an exact or relative path.")
@@ -95,6 +101,12 @@ def parse_args():
     args = parser.parse_args()
     
     #---------------------------- EXTRACTION COMMANDS --------------------------------
+    if args.command == "extract_dialogs":
+        kwargs = {}
+        if args.output_folder:
+            kwargs["out_path"] = Path(args.output_folder)
+        extract_dialogs(Path(args.rompath), **kwargs)
+
     if args.command == "extract_font":
         kwargs = {}
         if args.output_folder:

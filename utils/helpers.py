@@ -3,6 +3,11 @@ import shutil
 from pathlib import Path
 from config import defaults
 
+SJIS_FIRSTBYTE_LOWEST = 0x81
+SJIS_FIRSTBYTE_HIGHEST = 0xEA
+SJIS_SECONDBYTE_LOWEST = 0x40
+SJIS_SECONDBYTE_HIGHEST = 0xFC
+
 def bytes_to_bits(b):
     return format(b, '08b')
 
@@ -75,3 +80,29 @@ def overwrite_output_rom(source, dest=defaults.OUTPUT_ROM):
 def align_bytes_by_4(pos):
     offby = pos % 4
     pass
+
+def is_1byte_sjis(byte):
+    if len(byte) != 1:
+        return False
+    byte = int.from_bytes(byte)
+    if byte >= 0x20 and byte <= 0x7e:
+        result = True
+    return False
+
+def is_2byte_sjis(the_bytes):
+    if len(the_bytes) <= 1:
+        return False
+    byte1_int = the_bytes[0]
+    byte2_int = the_bytes[1]
+    byte_1_match = True if byte1_int >= SJIS_FIRSTBYTE_LOWEST and byte1_int <= SJIS_FIRSTBYTE_HIGHEST else False
+    byte_2_match = True if byte2_int >= SJIS_SECONDBYTE_LOWEST and byte2_int <= SJIS_SECONDBYTE_HIGHEST else False
+    if byte_1_match and byte_2_match:
+        return True
+    return False
+
+def is_sjis(the_bytes):
+    if len(the_bytes) == 1:
+        return is_1byte_sjis(the_bytes)
+    if len(the_bytes) == 2:
+        return is_2byte_sjis(the_bytes)
+    return False
