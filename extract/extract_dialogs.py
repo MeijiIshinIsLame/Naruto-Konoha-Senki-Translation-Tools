@@ -11,6 +11,11 @@ def is_address(b: bytes):
     ptr = int.from_bytes(b, "little")
     return 0x08000000 <= ptr <= 0x087ffff0
 
+def read_ahead(f: BinaryIO, howfar: int):
+    b = f.read(howfar)
+    f.seek(f.tell() - howfar)
+    return b
+
 class DialogBuffer:
     def __init__(self, f: BinaryIO, pointer: Pointer):
         self.f = f
@@ -20,13 +25,15 @@ class DialogBuffer:
         b = b''
         start = int(self.pointer) - 0x08000000
         self.f.seek(start)
-        stopcode_check = self.f.read(len(stopcode))
-        self.f.seek(self.f.tell() - len(stopcode))
-        while stopcode_check != stopcode:
+        stopcode_check = read_ahead(self.f, len(stopcode))
+        while True:
             if not stopcode_check:
                 break
+            if stopcode_check == stopcode:
+                b += stopcode
+                break
             b += self.f.read(1)
-            stopcode_check = self.f.read(len(stopcode))
+            stopcode_check = read_ahead(self.f, len(stopcode))
         return b
 
 class Dialog:
@@ -75,8 +82,8 @@ class Dialog:
             if helpers.is_1byte_sjis(bytes(read_2_ahead[0])):
                 data_to_process += self.read(1).data
             read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
-            print("read 2 ahead", read_2_ahead.hex())
-        print("fuckin SJIS data: ", data_to_process)
+            #print("read 2 ahead", read_2_ahead.hex())
+        #print("fuckin SJIS data: ", data_to_process)
         return DialogBytes(data_to_process)
 
     def read_until_sjis(self):
@@ -88,7 +95,7 @@ class Dialog:
             data_to_process += self.read(1).data
             read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
 
-        print("Non-SJIS data: ", data_to_process)
+        #print("Non-SJIS data: ", data_to_process)
         return DialogBytes(data_to_process)
 
     def oops_all_sjis_and_hex(self):
@@ -108,7 +115,7 @@ class DialogBytes:
         if how == HEX:
             return f"<HEX>{self.data.hex()}</HEX>\n"
         if how == SJIS_TEXT:
-            print(self.data)
+            #print(self.data)
             sjis_text = self.data.decode('shift_jis')
             return f"<SJIS>{sjis_text}</SJIS>\n<TRANSLATION>{sjis_text}</TRANSLATION>\n"
         return None
@@ -195,6 +202,8 @@ def extract_dialogs(rom, out_path=Path("./extract/script_files")):
         with open(rom, "rb") as f:
             dialog_buffer = DialogBuffer(f, ptr)
             data = dialog_buffer.read_until(STOPCODE)
+            print("\n------------------\n", ptr, "\n------------------\n")
+            print(data.hex(' '))
         processed_data = Dialog(data).parse_data()
         with open(filepath, "w", encoding='shift_jis') as f:
             f.write(processed_data)
