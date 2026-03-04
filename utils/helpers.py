@@ -104,5 +104,7 @@ def is_sjis(the_bytes):
     if len(the_bytes) == 1:
         return is_1byte_sjis(the_bytes)
     if len(the_bytes) == 2:
+        if is_1byte_sjis(bytes(the_bytes[0])):
+            return True
         return is_2byte_sjis(the_bytes)
     return False
