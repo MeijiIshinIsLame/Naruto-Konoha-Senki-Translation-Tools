@@ -43,11 +43,12 @@ class Dialog:
         self.currentpos = 0
 
     def parse_data(self):
-        while self.currentpos <= len(self.data):
+        while self.currentpos < len(self.data):
+            print(f"currentpos: {hex(self.currentpos)}, len {hex(len(self.data))}")
             opcode = self.data[self.currentpos]
             epicly_parsed_data = process_opcode(opcode, self)
             self.parsed_data += epicly_parsed_data
-            return self.parsed_data #i know we dont have to but just for readability
+        return self.parsed_data #i know we dont have to but just for readability
 
     def read(self, numbytes: int):
         data = self.data[self.currentpos: self.currentpos + numbytes]
@@ -77,11 +78,12 @@ class Dialog:
             read_2_ahead = self.data[self.currentpos: self.currentpos + 2]
             if self.currentpos >= len(self.data):
                 break
-            if not helpers.is_sjis(read_2_ahead):
+            if helpers.is_2byte_sjis(read_2_ahead):
+                data_to_process += self.read(2).data
+            elif helpers.is_1byte_sjis(bytes(read_2_ahead[0])):
+                data_to_process += self.read(1).data
+            else:
                 break
-            data_to_process += self.read(1).data
-            print("READ UNTIL OPCODE to process", data_to_process.hex(' '))
-            print("READ UNTIL SJIS 2 ahead", read_2_ahead.hex(' '))
             #print("read 2 ahead", read_2_ahead.hex())
         #print("fuckin SJIS data: ", data_to_process)
         return DialogBytes(data_to_process)
@@ -95,17 +97,17 @@ class Dialog:
             if helpers.is_sjis(read_2_ahead):
                 break
             data_to_process += self.read(1).data
-            print("READ UNTIL SJIS to process", data_to_process.hex(' '))
-            print("READ UNTIL SJIS 2 ahead", read_2_ahead.hex(' '))
         #print("Non-SJIS data: ", data_to_process)
         return DialogBytes(data_to_process)
 
     def oops_all_sjis_and_hex(self):
         processed_data = ""
-        while self.currentpos <= len(self.data):
+        while self.currentpos < len(self.data):
+            print(f"currentpos: {hex(self.currentpos)}, len {hex(len(self.data))}")
             processed_data += self.read_until_sjis().process_as(HEX)
-            processed_data += self.read_until_opcode().process_as(SJIS_TEXT)
-        return DialogBytes(processed_data)
+            a = self.read_until_opcode()
+            processed_data += a.process_as(SJIS_TEXT)
+        return processed_data
 
 class DialogBytes:
     def __init__(self, data: bytes):
@@ -118,7 +120,10 @@ class DialogBytes:
             return f"<HEX>{self.data.hex()}</HEX>\n"
         if how == SJIS_TEXT:
             #print(self.data)
-            sjis_text = self.data.decode('shift_jis')
+            try:
+                sjis_text = self.data.decode('shift_jis') #TODO: make ur own function to decode using the table u have
+            except:
+                pass
             return f"<SJIS>{sjis_text}</SJIS>\n<TRANSLATION>{sjis_text}</TRANSLATION>\n"
         return None
 
@@ -127,6 +132,7 @@ def process_opcode(opcode: int, dialog: Dialog):
         return None
 
     if opcode == 0x01:
+
         part1 = dialog.read(1).process_as(HEX)
         part2 = dialog.read_the_rest().process_as(SJIS_TEXT)
         return part1 + part2
@@ -141,7 +147,7 @@ def process_opcode(opcode: int, dialog: Dialog):
         return part1 + part2
 
     if opcode == 0x16:
-        return dialog.read_the_rest.process_as(HEX)
+        return dialog.read_the_rest().process_as(HEX)
 
     if opcode == 0x22:
         part1 = dialog.read(16).process_as(HEX)
@@ -189,7 +195,7 @@ def process_opcode(opcode: int, dialog: Dialog):
     if opcode == 0x07:
         part1 = dialog.read(1).process_as(HEX)
         part2 = dialog.read(4).process_as(ADDRESS)
-        part1 = dialog.read(1).process_as(HEX)
+        part3 = dialog.read(1).process_as(HEX)
         return part1 + part2 + part3
 
     # opcodes not handled yet
@@ -204,8 +210,6 @@ def extract_dialogs(rom, out_path=Path("./extract/script_files")):
         with open(rom, "rb") as f:
             dialog_buffer = DialogBuffer(f, ptr)
             data = dialog_buffer.read_until(END_DIALOG)
-            print("\n------------------\n", ptr, "\n------------------\n")
-            print(data.hex(' '))
         processed_data = Dialog(data).parse_data()
         with open(filepath, "w", encoding='shift_jis') as f:
             f.write(processed_data)
