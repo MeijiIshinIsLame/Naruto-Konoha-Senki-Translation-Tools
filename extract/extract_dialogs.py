@@ -13,7 +13,7 @@ LINEBREAK_OPCODE = 0x0a
 def decode_sjis(b: bytes, tbl: dict[str, str]):
     ONE_BYTE = 2
     TWO_BYTES = 4
-    bstring = str(b.hex())
+    bstring = str(b.hex()).upper()
     i = 0
     out_string = ""
 
@@ -37,6 +37,7 @@ def decode_sjis(b: bytes, tbl: dict[str, str]):
 
         #if nothing just incriment ig
         i += ONE_BYTE
+    print(out_string)
     return out_string
 
 def is_address(b: bytes):
