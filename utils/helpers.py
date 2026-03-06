@@ -85,6 +85,8 @@ def is_1byte_sjis(byte):
     if len(byte) != 1:
         return False
     byte = int.from_bytes(byte)
+    if byte == 0xa:
+        return True
     if byte >= 0x20 and byte <= 0x7e:
         result = True
     return False
@@ -108,3 +110,14 @@ def is_sjis(the_bytes):
             return True
         return is_2byte_sjis(the_bytes)
     return False
+
+def create_tbl_dict(tbl_path: Path):
+    tbl_dict = {}
+    with open(tbl_path, "r") as f:
+        for line in f.readlines():
+            print(line)
+            parts = line.split("=")
+            byte = parts[0]
+            char = parts[1]
+            tbl_dict[byte] = char.strip()
+    return tbl_dict
