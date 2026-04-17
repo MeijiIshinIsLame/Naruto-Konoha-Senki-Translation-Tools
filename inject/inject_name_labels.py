@@ -9,6 +9,14 @@ EXIT_BYTE = b'\x00'
 PADDING = EXIT_BYTE * 4
 SPACING = 64
 
+def force_4byte_alignment(addr):
+    alignment = 4
+    if addr % 4 == 0:
+        return addr
+    else:
+        return addr & ~(alignment - 1)
+
+
 def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, files=Path("inject/name_labels")):
     """Overwrite name with pointer, then write new data at the pointer location"""
     print("Inserting Name Labels")
@@ -23,6 +31,7 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
             #at this point we need to make them 4 byte aligned. we can still read exactly where they are,
             #but this program is the one that needs to predict the byte alignment.
             start = int(file.stem, 16)
+            start = force_4byte_alignment(start)
             pointer_saki += SPACING
             pointer = Pointer.from_be_int(pointer_saki + 0x8000000)
             f.seek(start)
