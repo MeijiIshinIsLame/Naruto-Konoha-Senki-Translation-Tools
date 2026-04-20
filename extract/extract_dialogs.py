@@ -2,6 +2,7 @@ from pathlib import Path
 from utils import helpers
 from classes.pointers import Pointer, PointerList
 from config import defaults
+from typing import BinaryIO
 
 ADDRESS = 0
 HEX = 1
