@@ -27,9 +27,9 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
         pointer_saki = helpers.find_juicy_insert_position(size=32, start=defaults.BLANKSPACE_STARTPOS, rompath=output_rompath)
         for i, file in enumerate(tqdm(files)):
             with open(file, "rb") as fp:
+                print(file)
                 data = fp.read()
-            #at this point we need to make them 4 byte aligned. we can still read exactly where they are,
-            #but this program is the one that needs to predict the byte alignment.
+                data = helpers.halfwidth_bytes_to_fullwidth(data)
             start = int(file.stem, 16)
             start = force_4byte_alignment(start)
             pointer_saki += SPACING

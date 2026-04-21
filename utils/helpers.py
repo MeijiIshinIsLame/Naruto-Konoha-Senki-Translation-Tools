@@ -121,3 +121,32 @@ def create_tbl_dict(tbl_path: Path):
             char = parts[1]
             tbl_dict[byte] = char.strip()
     return tbl_dict
+    
+def halfwidth_bytes_to_fullwidth(b):
+    out = bytearray()
+
+    for byte in b:
+        #bullshit to make halfwidth to fullwidth dict
+        #i know its bs but i dont care
+        if byte == 0x20:
+            out += b'\x81\x40' 
+        elif 0x21 <= byte <= 0x7E:
+            ch = chr(byte + 0xFEE0)
+
+            try:
+                out += ch.encode("shift_jis")
+            except UnicodeEncodeError:
+                #fallback chars
+                if byte == 0x27:      #apostrophe '
+                    out += b'\x27'    #keep half-width apostrophe
+                elif byte == 0x22:    #quote "
+                    out += b'\x22'
+                elif byte == 0x5C:    #backslash
+                    out += b'\x5C'
+                else:
+                    out += bytes([byte])
+        else:
+            out.append(byte)
+
+    return bytes(out)
+    
