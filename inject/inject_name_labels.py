@@ -13,7 +13,7 @@ def fallback_to_halfwidth(maxlen, b):
     if len(b) <= maxlen:
         result = helpers.halfwidth_bytes_to_fullwidth(b)
     else:
-        result = b.replace(b'\x20', b'\n')
+        result = b.replace(b'\x20', b'\n', 1)
     return result
 
 def force_4byte_alignment(addr):
