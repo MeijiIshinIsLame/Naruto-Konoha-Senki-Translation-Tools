@@ -9,6 +9,13 @@ EXIT_BYTE = b'\x00'
 PADDING = EXIT_BYTE * 4
 SPACING = 64
 
+def fallback_to_halfwidth(maxlen, b):
+    if len(b) <= maxlen:
+        result = helpers.halfwidth_bytes_to_fullwidth(b)
+    else:
+        result = b.replace(b'\x20', b'\n')
+    return result
+
 def force_4byte_alignment(addr):
     alignment = 4
     if addr % 4 == 0:
@@ -29,7 +36,7 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
             with open(file, "rb") as fp:
                 print(file)
                 data = fp.read()
-                data = helpers.halfwidth_bytes_to_fullwidth(data)
+                data = fallback_to_halfwidth(maxlen=7, b=data)
             start = int(file.stem, 16)
             start = force_4byte_alignment(start)
             pointer_saki += SPACING
