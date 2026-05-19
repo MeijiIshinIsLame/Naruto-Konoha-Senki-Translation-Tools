@@ -8,6 +8,7 @@ from utils import helpers
 EXIT_BYTE = b'\x00'
 PADDING = EXIT_BYTE * 4
 SPACING = 64
+LAST_CHARNAME_IN_MEMORY = 0x5a5f69
 
 def fallback_to_halfwidth(maxlen, b):
     if len(b) <= maxlen:
@@ -36,7 +37,15 @@ def inject_name_labels(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, f
             with open(file, "rb") as fp:
                 print(file)
                 data = fp.read()
-                data = fallback_to_halfwidth(maxlen=7, b=data)
+                #this is bad thing that needs to be fixed.
+                #in reality, there shld be 2 functions, 2 for mapnames and 1
+                #for charnames, but for now we just only default to halfwidth if its a mapname
+                if int(file.stem, 16) > LAST_CHARNAME_IN_MEMORY:
+                    print(data)
+                    print(hex(int(file.stem, 16)))
+                    data = fallback_to_halfwidth(maxlen=7, b=data)
+                else:
+                    data = fallback_to_halfwidth(maxlen=32, b=data)
             start = int(file.stem, 16)
             start = force_4byte_alignment(start)
             pointer_saki += SPACING
