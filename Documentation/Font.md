@@ -33,6 +33,7 @@ cd = lighter, darker. The left side is actually the right side.
 putting the whole draw thing here for personal reference
 
 **also, its drawn from left right, so if we just hijack the draw routine and store the correct ram value we should be good.**
+
 ![Regs](Images/screenshot3.png)
 ``` 
 
