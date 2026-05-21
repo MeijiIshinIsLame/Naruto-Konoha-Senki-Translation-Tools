@@ -20,8 +20,20 @@ r5 - r0 LSL0x5 + 0x0809d954
 
 ```
 
+and when its drawn, it's little endian BY THE BIT.
+
+aka, cd cd 
+
+c = darker 
+
+d = lighter
+
+cd = lighter, darker. The left side is actually the right side.
+
 putting the whole draw thing here for personal reference
 
+**also, its drawn from left right, so if we just hijack the draw routine and store the correct ram value we should be good.**
+![Regs](Images/screenshot3.png)
 ``` 
 
                              draw_pixel_in_vram_as_tile_08065flc             XREF[1]:     08065f5c(j)  
