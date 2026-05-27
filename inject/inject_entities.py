@@ -55,6 +55,6 @@ def inject_entities(input_rompath=None, entities_path=defaults.INJECT_ENTITIES_P
             rompath=output_rompath
         )
         with open(output_rompath, "r+b") as f:
-            #print(f"Inserting at {hex(insert_pos)} entity with contents {entity.contents}")
+            #print(f"Inserting at {hex(insert_pos)} entity with contents {hex(entity.base_addr)}")
             inject_entity(insert_pos, entity, f, output_rompath)
             pos = f.tell()

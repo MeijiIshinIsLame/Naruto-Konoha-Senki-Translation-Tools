@@ -14,6 +14,7 @@ from inject.inject_entities import inject_entities
 from inject.inject_name_labels import inject_name_labels
 from inject.inject_menu import inject_menu
 from inject.inject_asm import prepare_and_inject_asm
+from inject.inject_vwf import inject_vwf_font
 
 def parse_args():
     parser = argparse.ArgumentParser(description="A CLI tool for extracting and injecting files to Naruto Konoha Senki")
@@ -91,6 +92,14 @@ def parse_args():
     inject_asm_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
     inject_asm_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
     
+  #---------------------------- INJECT VWF ---------------------------------    
+    inject_vwf_parser = subparsers.add_parser("inject_vwf", help="Takes a ROM and patches is with the files located in the 'inject' folder.")
+    inject_vwf_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
+    inject_vwf_parser.add_argument("--font_path", "-f", help="Optional. Path of font folder with 8x16 PNG images to inject. Can be an exact or relative path.")
+    inject_vwf_parser.add_argument("--output_rompath", "-o", help="Optional unless there is no output ROM yet and no input rompath specified. Path of the output rom file. Can be an exact or relative path.")
+    inject_vwf_parser.add_argument("--overwrite_output_rom", "-w",  action='store_true', help="Optional. Overwrite output ROM with input ROM.")
+    
+
     #---------------------------- INJECT ALL ---------------------------------
     patch_rom_parser = subparsers.add_parser("patch_rom", help="Takes a ROM and patches is with the files located in the 'inject' folder.")
     patch_rom_parser.add_argument("--input_rompath", "-i", help="Optional unless there is no output ROM yet. Path of the ROM to copy into the new ROM. Can be an exact or relative path.")
@@ -222,6 +231,21 @@ def parse_args():
             dest = kwargs.get("output_rompath", defaults.OUTPUT_ROM)
             helpers.overwrite_output_rom(source=kwargs["input_rompath"], dest=dest)
         prepare_and_inject_asm(**kwargs)
+
+    if args.command == "inject_vwf":
+        kwargs = {}
+        if args.input_rompath:
+            kwargs["input_rompath"] = Path(args.input_rompath)
+        if args.font_path:
+            kwargs["font_path"] = Path(args.font_path)
+        if args.output_rompath:
+            kwargs["output_rompath"] = Path(args.output_rompath)
+        if args.overwrite_output_rom:
+            #try to get output path from kwargs, otherwise use default
+            dest = kwargs.get("output_rompath", defaults.OUTPUT_ROM)
+            helpers.overwrite_output_rom(source=kwargs["input_rompath"], dest=dest)
+        inject_vwf_font(**kwargs)
+        
         
     if args.command == "patch_rom":
         kwargs = {}
@@ -241,3 +265,4 @@ def parse_args():
         inject_menu(**kwargs)
         if not args.skip_asm:
             prepare_and_inject_asm(**kwargs)
+        inject_vwf_font(**kwargs)

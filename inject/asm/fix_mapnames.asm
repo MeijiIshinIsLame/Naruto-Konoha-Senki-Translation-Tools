@@ -42,6 +42,7 @@ keep_getting_letters:
     	bx r0
 skip:
 	; erase lr in ram
+	add r0, r6, 0h
 	bx lr
 
 .pool

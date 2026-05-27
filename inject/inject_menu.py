@@ -37,12 +37,12 @@ def inject_menu(input_rompath=None, output_rompath=defaults.OUTPUT_ROM, files=Pa
 
             for sub_ptrlist in full_ptrlist:
                 sub_ptrlist.replace(oldptr, newptr)
-
+            data = bytes([0x61, 0x61])
             with open(file, "rb") as f2:
-                data = f2.read()
+                #data = f2.read()
                 data += BREAK_BYTE
                 f.seek(start)
-                offset += len(data)
+                #offset += len(data)
                 f.write(data)
 
     for sub_ptrlist in full_ptrlist:

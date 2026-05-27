@@ -50,7 +50,16 @@ def inject_asm_files(input_rom):
         os.chdir(asm_folder)
         #run armips to inject the asm. We need to come back here for teh linux option as well.
         if the_os() == "Windows":
-            subprocess.run(["armips.exe", file.name], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["armips.exe", file.name],
+                capture_output=True,
+                text=True
+            )
+
+            print(result.stdout)
+            print(result.stderr)
+
+            result.check_returncode()
         else:
             subprocess.run(["./armips", file.name], capture_output=True, text=True, check=True)
         os.chdir(base_cwd)
@@ -74,6 +83,8 @@ def prepare_and_inject_asm(input_rompath=None, output_rompath=defaults.OUTPUT_RO
     except ValueError:
         asm_files = None
     if asm_files:
+        delete_modified_asm_files()
+        delete_gba_files()
         rom = helpers.ensure_output_rompath(input_rompath, output_rompath)
         local_armips_rom = Path(f"inject/asm/{rom.name}")
         shutil.copy(rom, local_armips_rom)
