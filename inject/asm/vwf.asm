@@ -61,7 +61,7 @@ draw:
 	push {r0}
 	ldr r0, =prev_width_addr
 	ldr r0, [r0]
-	ldrb r0, r0
+	ldrb r0, [r0]
 	cmp r0, 8h
 	pop {r0}
 	bne draw_with_offset
@@ -69,7 +69,7 @@ draw:
 	push {r0}
 	ldr r0, =offset_flag
 	ldr r0, [r0]
-	ldrb r0, r0
+	ldrb r0, [r0]
 	cmp r0, 0h
 	pop {r0}
 	bne draw_with_offset
