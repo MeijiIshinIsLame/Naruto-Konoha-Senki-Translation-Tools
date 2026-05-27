@@ -49,22 +49,28 @@ store_nibble_counter:
 	ldr r0, =nibble_counter
 	ldr r0, [r0]
 	ldrb r1, [r0]
-	cmp r0, 0h
-	bne draw
+	cmp r1, 0h
+	pop {r0, r1}
+	bne pre_finale
+	
+	push {r0, r1}
+	ldr r0, =nibble_counter
+	ldr r0, [r0]
 	mov r1, 1h
 	strb r1, [r0]
 	pop {r0, r1}
 	b pre_finale
 	
-	
+
+;find a way if you can manage the push and pops better
 draw:
 	push {r0}
 	ldr r0, =prev_width_addr
 	ldr r0, [r0]
 	ldrb r0, [r0]
-	cmp r0, 8h
+	cmp r0, 0h
 	pop {r0}
-	bne draw_with_offset
+	beq drawh
 	
 	push {r0}
 	ldr r0, =offset_flag
@@ -74,6 +80,7 @@ draw:
 	pop {r0}
 	bne draw_with_offset
 	
+drawh:
 	strh r1, [r3, 0h]
     add r3, 2h
 	b pre_finale
