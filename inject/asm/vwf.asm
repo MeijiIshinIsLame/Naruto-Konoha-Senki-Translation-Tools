@@ -44,13 +44,55 @@ store_width:
 	strb r3, [r1]
 	strb r2, [r0]
 	pop {r0, r1, r2, r3}
+store_nibble_counter:
+	push {r0, r1}
+	ldr r0, =nibble_counter
+	ldr r0, [r0]
+	ldrb r1, [r0]
+	cmp r0, 0h
+	bne draw
+	mov r1, 1h
+	strb r1, [r0]
+	pop {r0, r1}
 	b pre_finale
+	
+	
 draw:
+	push {r0}
+	ldr r0, =prev_width_addr
+	ldr r0, [r0]
+	ldrb r0, r0
+	cmp r0, 8h
+	pop {r0}
+	bne draw_with_offset
+	
+	push {r0}
+	ldr r0, =offset_flag
+	ldr r0, [r0]
+	ldrb r0, r0
+	cmp r0, 0h
+	pop {r0}
+	bne draw_with_offset
+	
+	strh r1, [r3, 0h]
+    add r3, 2h
+	b pre_finale
+	
+draw_with_offset:
 	strh r1, [r3, 0h]
     add r3, 2h
 	b pre_finale
 
 .pool
 prev_width_addr:
-	.word 0x030012f0
+	.word 0x0202f2b0
+nibble_counter: ;checks if were drawing nibble to right or left
+	.word 0x0202f2b4
+pixels_drawn:
+	.word 0x0202f2b8
+drawback_addr_drawn:
+	.word 0x0202f2bc
+offset_flag: ; determines whether offset is tripped or not to start calculating back addresses
+	.word 0x0202f2c0
+	
 .close
