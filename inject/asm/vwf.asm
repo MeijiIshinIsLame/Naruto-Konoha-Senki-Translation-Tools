@@ -89,6 +89,21 @@ draw_with_offset:
 	strh r1, [r3, 0h]
     add r3, 2h
 	b pre_finale
+	
+;r0 = halfword pulled from vram
+;r1 = halfword pulled from rom
+;r2 = position (from left to right) 
+;free registers are r3 - r7 if u push and pop
+insert_pixel_at_position:
+	cmp r1, 1h
+	beq insert_1
+	cmp r1, 2h
+	beq insert_2
+	cmp r1, 3h
+	beq insert_3
+	cmp r1, 4h
+	beq insert_4
+	bx lr
 
 .pool
 prev_width_addr:
