@@ -4,9 +4,9 @@ konohasenki = Path(r"../../game/Naruto - Konoha Senki English translation.gba")
 
 class CPU:
     def __init__(self):
-        self.r0  = 0x00000000
+        self.r0  = 0x00009ba5
         self.r1  = 0x00008c89
-        self.r2  = 0x00000020
+        self.r2  = 0x00000004
         self.r3  = 0x060021A0
         self.r4  = 0x03001170
         self.r5  = 0x080A2154
@@ -81,6 +81,25 @@ class CPU:
         setattr(self, dest, src)
         self.writelog_custom(f"mov {dest}, {src}\n")
 
+    def mul(self, dest, src, val=None):
+        if val is None:
+            val = getattr(self, src)
+            newval = (getattr(self, dest) * val) & 0xFFFFFFFF
+        else:
+            newval = (getattr(self, src) * val) & 0xFFFFFFFF
+
+        setattr(self, dest, newval)
+        self.writelog_custom(f"mul {dest}, {src}, {val}\n")
+
+    def sub(self, dest, src, val=None):
+        if val is None:
+            val = getattr(self, src)
+            newval = (getattr(self, dest) - val) & 0xFFFFFFFF
+        else:
+            newval = (getattr(self, src) - val) & 0xFFFFFFFF
+        setattr(self, dest, newval)
+        self.writelog_custom(f"sub {dest}, {src}, {val}\n")
+
     def pprint(self, emphasis=None):
         RED = "\033[31m"
         WHITE = "\033[37m"
@@ -148,140 +167,88 @@ logf = Path("log.txt")
 with open(logf, 'w') as f:
     pass
 
-cpu.lsr("r4", "r1", 0x8)
-print("lsr r4, r1, 0x8")
+######################## setup ls for vram ########################
+cpu.mov("r4", 0x4)
+print("mov r4, 0x4")
 cpu.pprint("r4")
 
-cpu._and("r1", "r1", 0xff)
-print("lsl r1, 0xff")
+cpu.mov("r5", 0x10)
+print("mov r5, 0x16")
+cpu.pprint("r5")
+
+cpu.mov("r6", 0x4)
+print("mov r6, 0x4")
+cpu.pprint("r6")
+
+cpu.mul("r6", "r2")
+print("mul r6, r2")
+cpu.pprint("r6")
+
+cpu._add("r5", "r6")
+print("add r5, r6")
+cpu.pprint("r5")
+
+cpu.lsl("r0", "r5")
+print("lsl r0, r5")
+cpu.pprint("r0")
+
+cpu.lsr("r0", "r5")
+print("lsr r0, r5")
+cpu.pprint("r0")
+
+######################## setup ls for chars ########################
+
+#cpu.mov("r4", 0x4)
+#print("mov r4, 0x4")
+#cpu.pprint("r4")
+
+cpu.mov("r5", 0x4)
+print("mov r5, 0x4")
+cpu.pprint("r5")
+
+cpu.sub("r5", "r2")
+print("sub r5, r2")
+cpu.pprint("r5")
+
+cpu.mul("r5", "r5", 0x4)
+print("add r5, 0x4")
+cpu.pprint("r5")
+
+cpu.lsr("r1", "r5")
+print("lsr r0, r5")
+cpu.pprint("r1")
+
+cpu.lsl("r1", "r5")
+print("lsl r0, r5")
+cpu.pprint("r1")
+
+######################## build the final and bx ########################
+
+cpu.orr("r1", "r0")
+print("orr r1, r0")
 cpu.pprint("r1")
 
 """
-i = 0
-while i <= 32:
-    with open(logf, 'a') as f:
-        print("##############################")
-        print(f"RUN {i}")
-        print("##############################")
-        print("original")
-        f.write("##############################\n")
-        f.write(f"RUN {i}\n")
-        f.write("##############################\n")
-        f.write("original\n")
-    cpu.pprint()
+;r0 = halfword pulled from vram
+;r1 = halfword pulled from rom
+;r2 = pos to start inserting 1-4 (from left to right as pixels - 12 34)
+;
+;at the end, r1 is the final thing 
+;
+create_4pixel_block:
+    mov r4, 4h ; shift amount
+    mov r5, 16h ;hard shift for the vram pull
+    mov r6, 4h ; minus for remainder
 
-""""""
-    cpu.ldrb("r2", "r5")
-    print("ldrb r2, r5")
-    cpu.pprint("r2")
-
-    cpu.mov("r1", 0x3)
-    print("mov r1, 0x3")
-    cpu.pprint("r1")
-
-    cpu._and("r1", "r2")
-    print("ands r1, r2")
-    cpu.pprint("r1")
-
-    cpu.mov("r7", "r10")
-    print("mov r7, r10")
-    cpu.pprint("r7")
-
-    cpu.orr("r1", "r7")
-    print("orrs r1, r7")
-    cpu.pprint("r1")
-
-    cpu.mov("r0", 0xc)
-    print("mov r0, 0xC")
-    cpu.pprint("r0")
-
-    cpu._and("r0", "r2")
-    print("ands r0, r2")
-    cpu.pprint("r0")
-
-    cpu.mov("r7", "r9")
-    print("mov r7, r9")
-    cpu.pprint("r7")
-
-    cpu.orr("r0", "r7")
-    print("orrs r0, r7")
-    cpu.pprint("r0")
-
-    cpu.lsl("r0", "r0", 0x2)
-    print("lsl r0, r0, #0x2")
-    cpu.pprint("r0")
-
-    cpu.orr("r1", "r0")
-    print("orrs r1, r0")
-    cpu.pprint("r1")
-
-    cpu.mov("r0", 0x30)
-    print("mov r0, #0x30")
-    cpu.pprint("r0")
-
-    cpu._and("r0", "r2")
-    print("ands r0, r2")
-    cpu.pprint("r0")
-
-    cpu.mov("r7", "r8")
-    print("mov r7, r8")
-    cpu.pprint("r7")
-
-    cpu.orr("r0", "r7")
-    print("orrs r0, r7")
-    cpu.pprint("r0")
-
-    cpu.lsl("r0", "r0", 0x4)
-    print("lsl r0, r0, #0x4")
-    cpu.pprint("r0")
-
-    cpu.orr("r1", "r0")
-    print("orrs r1, r0")
-    cpu.pprint("r1")
-
-    cpu.mov("r0", 0xC0)
-    print("mov r0, #0xC0")
-    cpu.pprint("r0")
-
-    cpu._and("r0", "r2")
-    print("ands r0, r2")
-    cpu.pprint("r0")
-
-    cpu.mov("r2", "r12")
-    print("mov r2, r12")
-    cpu.pprint("r2")
-
-    cpu.orr("r0", "r2")
-    print("orrs r0, r2")
-    cpu.pprint("r0")
-
-    cpu.lsl("r0", "r0", 0x6)
-    print("lsl r0, r0, #0x6")
-    cpu.pprint("r0")
-
-    cpu.orr("r1", "r0")
-    print("orrs r1, r0")
-    cpu.pprint("r1")
-
-    cpu._add("r3", "r3", 0x2)
-    print("add r3, #0x2")
-    cpu.pprint("r3")
-
-    cpu._add("r5", "r5", 0x1)
-    print("add r5, #0x1")
-    cpu.pprint("r5")
-
-    cpu._add("r0", "r6", 0x1)
-    print("add r0, r6, #0x1")
-    cpu.pprint("r0")
-
-    cpu.lsl("r0", "r0", 0x18)
-    print("lsl r0, r0, #0x18")
-    cpu.pprint("r0")
-
-    cpu.lsr("r6", "r0", 0x18)
-    print("lsr r6, r0, #0x18")
-    cpu.pprint("r6")
-
-    i += 1
+    mul r4, r2
+    add r5, r4
+    
+    lsl r0, r5
+    lsr r0, r5
+    lsr r1, r4
+    lsl r1, r4
+    
+    and r0, r1
+    sub r2, r4 
+    bx lr
 """
