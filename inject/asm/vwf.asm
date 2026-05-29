@@ -45,6 +45,16 @@ activate_offset_flag:
 	ldr r0, [r0]
 	mov r1, 1h
 	strb r1, [r0]
+initiate_pixels_drawn:
+	ldr r0, =pixels_drawn
+	ldr r0, [r0]
+	mov r1, 0h
+	strb r1, [r0]
+initiate_4bit_pos_drawn:
+	ldr r0, =pixels_drawn
+	ldr r0, [r0]
+	mov r1, 0h
+	strb r1, [r0]
 prepare_counter_skip:
 	add r5, 1h
 	add r6, 1h
@@ -59,7 +69,6 @@ draw:
     ldr r0, =prev_width_addr
     ldr r0, [r0]
     ldrb r0, [r0]
-	mov r2, 0h ;temp
     cmp r0, 0h
     beq draw_normal
     
@@ -68,10 +77,10 @@ draw:
     ldrb r0, [r0]
 	mov r2, 0h ;temp
     cmp r0, 0h
-    bne draw_normal ;when we have it working this will be draw_with_offset_buffer
+    bne draw_from_pos ;when we have it working this will be draw_with_offset_buffer
 	;u can do 2byte just work on storing the counter
  
-draw_normal:
+draw_from_pos:
 	push {r7}
 	mov r7, r1
 start_drawing:
@@ -92,7 +101,11 @@ start_drawing:
 	add r3, 2h
 	pop {r7}
     b pre_finale
-    
+	
+draw_normal:
+	strh r1, [r3, 0h]
+    add r3, 2h
+	b pre_finale
     
 ;r0 = halfword pulled from vram (dest)
 ;r1 = halfword pulled from rom (src)
@@ -126,7 +139,7 @@ insert_bit_at_position:
 .pool
 prev_width_addr:
     .word 0x0202f2b0
-starting_4bit_pos: ;checks what bit to start drawing on
+last_4bit_pos: ;checks what bit to start drawing on
     .word 0x0202f2b4
 pixels_drawn: ;how many pixels have been drawn (up to 8)
     .word 0x0202f2bc
@@ -157,6 +170,4 @@ bitmask_pos3_src:
 bitmask_pos4_src:
 	.halfword 0x000f
 
-transparent_mask:
-	.halfword 0x8888
 .close
