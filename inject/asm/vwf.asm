@@ -51,7 +51,7 @@ initiate_pixels_drawn:
 	mov r1, 0h
 	strb r1, [r0]
 initiate_4bit_pos_drawn:
-	ldr r0, =pixels_drawn
+	ldr r0, =last_4bit_pos
 	ldr r0, [r0]
 	mov r1, 0h
 	strb r1, [r0]
