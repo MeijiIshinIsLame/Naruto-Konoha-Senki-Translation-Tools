@@ -80,6 +80,7 @@ draw:
     bne draw_from_pos ;when we have it working this will be draw_with_offset_buffer
 	;u can do 2byte just work on storing the counter
  
+ 
 draw_from_pos:
 	push {r7}
 	mov r7, r1
@@ -107,6 +108,7 @@ draw_normal:
     add r3, 2h
 	b pre_finale
     
+	
 ;r0 = halfword pulled from vram (dest)
 ;r1 = halfword pulled from rom (src)
 ;r2 = pos (from left to right as pixels - 43 21)
@@ -131,10 +133,7 @@ insert_bit_at_position:
 	orr r1, r0
 	pop {r3, r4, r5}
 	bx lr
-	
-	
-	
-	
+
 
 .pool
 prev_width_addr:
@@ -169,5 +168,4 @@ bitmask_pos3_src:
 	.halfword 0x00f0
 bitmask_pos4_src:
 	.halfword 0x000f
-
 .close
