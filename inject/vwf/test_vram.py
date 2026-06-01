@@ -12,28 +12,28 @@ LEN_3BITS = 3
 LEN_4BITS = 4
 
 bitmask_remainder = [
-    ((LEN_1BITS, OP_SUB, 0x3E), (LEN_3BITS, OP_ADD, 0x3E)),  # 0
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 1
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 2
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 3
+    ((LEN_2BITS, OP_SUB, 0x3E), (LEN_2BITS, OP_ADD, 0x3E)),  # 0
+    ((LEN_2BITS, OP_ADD, 0x1), (LEN_2BITS, OP_ADD, 0x3E)),  # 1
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 2
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 3
     ((LEN_0BITS, OP_ADD, 0x4), (LEN_0BITS, JUST_INSERT, 0x0)),  #4,  add some extra
     
-    ((LEN_1BITS, OP_SUB, 0x3E), (LEN_3BITS, OP_ADD, 0x3E)),  # 0
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 1
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 2
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 3
+    ((LEN_2BITS, OP_SUB, 0x3E), (LEN_2BITS, OP_ADD, 0x3E)),  # 0
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 1
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 2
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 3
     ((LEN_0BITS, OP_ADD, 0x4), (LEN_0BITS, JUST_INSERT, 0x0)),  #4,  add some extra
     
-    ((LEN_1BITS, OP_SUB, 0x3E), (LEN_3BITS, OP_ADD, 0x3E)),  # 0
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 1
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 2
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 3
+    ((LEN_2BITS, OP_SUB, 0x3E), (LEN_2BITS, OP_ADD, 0x3E)),  # 0
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 1
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 2
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 3
     ((LEN_0BITS, OP_ADD, 0x4), (LEN_0BITS, JUST_INSERT, 0x0)),  #4,  add some extra
     
-    ((LEN_1BITS, OP_SUB, 0x3E), (LEN_3BITS, OP_ADD, 0x3E)),  # 0
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 1
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 2
-    ((LEN_1BITS, OP_SUB, 0x3A), (LEN_3BITS, OP_ADD, 0x3E)),  # 3
+    ((LEN_2BITS, OP_SUB, 0x3E), (LEN_2BITS, OP_ADD, 0x3E)),  # 0
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 1
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 2
+    ((LEN_2BITS, OP_SUB, 0x3A), (LEN_2BITS, OP_ADD, 0x3E)),  # 3
     ((LEN_0BITS, OP_ADD, 0x4), (LEN_0BITS, JUST_INSERT, 0x0)),  #4,  add some extra
 ]
 
