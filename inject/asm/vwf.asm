@@ -126,14 +126,14 @@ insert_at_position:
 	; src mask
     mov     r5, #0x1
 
-    lsl     r4, r3, #0x2      ; r4 = len * 4
+    lsl     r4, r3, #0x2 ; r4 = len * 4
     lsl     r5, r4            
 
     sub     r5, #0x1          
 
     mov     r4, #0x5
     sub     r4, r2
-    sub     r4, r3            ; r4 = 5 - pos - len
+    sub     r4, r3 ; r4 = 5 - pos - len
 
     lsl     r4, #0x2          
     lsl     r5, r4           
