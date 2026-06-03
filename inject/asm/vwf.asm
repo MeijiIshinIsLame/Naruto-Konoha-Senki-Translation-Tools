@@ -62,7 +62,7 @@ store_width:
 ;r3 = 8, and we store total after sub
 store_total_remainder:
 	cmp r2, 0x0
-	beq prepare_counter_skip
+	beq reset_op_counter
 	
 	ldr r1, =total_remainder
 	ldr r1, [r1]
@@ -79,7 +79,13 @@ shave_remainder:
 	sub r0, 0x8
 store_remainder:
 	strb r0, [r1]
-	
+
+reset_op_counter:
+	mov r0, 0x0
+	ldr r1, =op_counter
+	ldr r1, [r1]
+	strb r0, [r1]
+
 prepare_counter_skip:
 	add r5, 1h
 	add r6, 1h
@@ -189,6 +195,8 @@ prev_widthOP_ADDr:
     .word 0x0202f2b0
 total_remainder:
     .word 0x0202f2b4
+op_counter:
+	.word 0x0202f2b8
 skip_the_counter:
 	.word 0x08065f1c
 
