@@ -97,53 +97,198 @@ prepare_counter_skip:
 
 ;find a way if you can manage the push and pops better
 draw:
-    b draw_from_pos
+    b prepare_operation_run
  
-
-;free registers
-; r2, r4, r5, r6
 
 ; r0 = halfword pulled from vram (dest)
 ; r1 = 2 byte (4 pixels) value from rom
-; r3 = vram addr to insert at, but becomes len to insert later and then is popped
-; r4 = total remainder
-; r5 = offset counter
-draw_from_pos:
-	push {r7, lr}
-	mov r7, r1
-start_drawing:
-	mov r1, r7
-	;push {r0, r1, r2, r3, r4, r5, r6}
-
-	;this is just a test. the operation builder is gonna go here instead
-	ldrh r0, [r3]
-	push {r2, r3}
-	mov r2, 0x1
-	mov r3, 0x3
-	bl insert_at_position
-	pop {r2, r3}
-	strh r1, [r3, 0h]
+; r2 = free
+; r3 = vram addr to insert at. DO NOT FUCK WITH THIS UNLESS YOU MEANT IT
+; r4 = total remainder, then the operation based on total remainder
+; r5 = op counter
+; r6 = counter (do not pop or edit this)
+; r7 = free
+; r8 = copy of halfword to insert
+prepare_operation_run:
+	push {r0, r1, r2, r4, r5, r7, r8, r11}
+	mov r11, r14
+	mov r8, r1
 	
-	ldrh r0, [r3]
-	mov r1, r7
-	push {r2, r3}
-	mov r2, 0x4
-	mov r3, 0x1
-	bl insert_at_position
-	pop {r2, r3}
-	strh r1, [r3, 0h]
+	; load total remainder
+	ldr r4, =total_remainder
+	ldr r4, [r4]
+	ldrb r4, [r4]
 	
-	add r3, 2h
+	;load op counter
+	ldr r5, =op_counter
+	ldr r5, [r5]
+	ldrb r5, [r5]
 	
-	pop {r7, lr}
+	mov r1, r8
+	
+	;cmp r4, 0x0
+	;beq draw_normal
+	
+	;cmp r4, 0x1
+	;beq handle_remainder1
+	b handle_remainder
+	
+end_operations:
+	;inc the op counter
+	add r5, 0x1
+	ldr r7, =op_counter
+	ldr r7, [r7]
+	strb r5, [r7]
+	mov r14, r11
+	pop {r0, r1, r2, r4, r5, r7, r8, r11}
     b pre_finale
 	
 draw_normal:
 	strh r1, [r3, 0h]
     add r3, 2h
+	mov r11, r14
+	pop {r0, r1, r2, r4, r5, r7, r8, r11}
 	b pre_finale
     
 	
+; r0 = halfword pulled from vram (dest)
+; r1 = 2 byte (4 pixels) value from rom
+; r2 = free
+; r3 = vram addr to insert at. DO NOT FUCK WITH THIS UNLESS YOU MEANT IT
+; r4 = total remainder, then the operation based on total remainder
+; r5 = op counter
+; r6 = main counter (do not pop or edit this)
+; r7 = free
+; r8 = copy of halfword to insert
+handle_remainder:
+	cmp r4, 0x0
+	beq load_remainder1_op
+	cmp r4, 0x1
+	beq load_remainder1_op
+	cmp r4, 0x2
+	beq load_remainder1_op
+	cmp r4, 0x3
+	beq load_remainder1_op
+	cmp r4, 0x4
+	beq load_remainder1_op
+	cmp r4, 0x5
+	beq load_remainder1_op
+	cmp r4, 0x6
+	beq load_remainder1_op
+	cmp r4, 0x7
+	beq load_remainder1_op
+run_loaded_operation_block:
+	b run_operations
+end_operation_block_run:
+	b end_operations
+
+
+; r0 = halfword pulled from vram (dest)
+; r1 = 2 byte (4 pixels) value from rom
+; r2 =  FREE TO USE
+; r3 = vram addr to insert at. DO NOT FUCK WITH THIS UNLESS YOU MEANT IT
+; r4 = FREE TO USE
+; r5 = FREE TO USE
+; r6 = main counter - needs to be intact at the end - FREE TO USE IF POPPED RESPONSIBLY
+; r7 = op addr
+; r8 = copy of halfword to insert
+
+; struct InsertOrder {
+	; int insertAmount (1-4 bits)
+	; int insertpos (1-4)
+	; int addOrSubtract (0=none, 1=add, 2=subtract)
+	; int addOrSubtractAmount
+	
+	; int insertAmount (1-4 bits)
+	; int insertpos (1-4)
+	; int addOrSubtract (0=none, 1=add, 2=subtract)
+	; int addOrSubtractAmount
+	
+	;int increment counter or not
+; }
+run_operations:
+	push {r0, r1, r2, r3, r4, r5, r6, r11}
+	mov r11, r14
+	
+	;handle vram pos 1
+	ldrb r4, [r7, 0x2] ; add or subtract
+	ldrb r5, [r7, 0x3] ; by how much?
+	
+	cmp r4, 0x1
+	beq add_vram_1
+	
+	cmp r4, 0x2
+	beq sub_vram_1
+load_vram_to_r0_1:
+	ldrh r0, [r3]
+	
+	;handle insert pos 1
+	push {r2, r3}
+	ldrb r2, [r7, 0x1]
+	ldrb r3, [r7, 0x0]
+	bl insert_at_position
+	pop {r2, r3}
+	strh r1, [r3, 0h]
+	
+	
+	add r7, 0x4 ; inc read pos
+	
+	
+	;handle vram pos 2
+	ldrb r4, [r7, 0x2] ; add or subtract
+	ldrb r5, [r7, 0x3] ; by how much?
+	
+	cmp r4, 0x1
+	beq add_vram_2
+	
+	cmp r4, 0x2
+	beq sub_vram_2
+load_vram_to_r0_2:
+	ldrh r0, [r3]
+	
+	;handle insert pos 2
+	mov r1, r8
+	push {r2, r3}
+	ldrb r2, [r7, 0x1]
+	ldrb r3, [r7, 0x0]
+	bl insert_at_position
+	pop {r2, r3}
+	strh r1, [r3, 0h]
+	
+	add r7, 0x4
+	
+	mov r14, r11
+	pop {r0, r1, r2, r3, r4, r5, r6, r11}
+	
+	;head into the finale to deal with the counter
+	add r7, 0x1
+	
+	; handle counter
+	ldrb r5, [r7]
+	cmp r5, 0x1
+	beq end_operation_block_run
+	sub r6, 0x1 ;dec the main counter if we dont intend to inc it
+	b end_operation_block_run
+
+;r3 = vram addr
+;r5 = add amt
+add_vram_1:
+	add r3, r5
+	b load_vram_to_r0_1
+	
+sub_vram_1:
+	sub r3, r5
+	b load_vram_to_r0_1
+	
+	
+add_vram_2:
+	add r3, r5
+	b load_vram_to_r0_2
+	
+sub_vram_2:
+	sub r3, r5
+	b load_vram_to_r0_2	
+
 ; r0 = halfword pulled from vram (dest)
 ; r1 = halfword pulled from rom (src)
 ; r2 = pos (from left to right as pixels - 12 34)
@@ -182,6 +327,24 @@ insert_at_position:
     orr     r1, r0  
 
     pop     {r4, r5, lr}
+	
+	
+
+;operation loading
+;r5 = counter
+;r7 = base addr
+;return r7 - starting addr of the operation block
+load_remainder1_op:
+	push {r5, r6}
+	ldr r7, =ops_remainder_1
+	
+	; get starting addr
+	mov r6, 0x9
+	mul r5, r6
+	add r7, r5
+	
+	pop {r5, r6}
+	b run_loaded_operation_block
 	
 .pool
 
@@ -238,42 +401,6 @@ skip_the_counter:
 
 .org 0x087c7870
 .align 4
-bitmask_remainder:
-bitmask_remainder_0:
-    .db LEN_4BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 0
-    .db LEN_4BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 1
-    .db LEN_4BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 2
-    .db LEN_4BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 3
-    .db LEN_4BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 4
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 5
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 6
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 7
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 8
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 9
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 10
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 11
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 12
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 13
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 14
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 15
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 16
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 17
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 18
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 19
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 20
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 21
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 22
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 23
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 24
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 25
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 26
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 27
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 28
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 29
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 30
-    .db LEN_1BITS,JUST_INSERT,0,LEN_0BITS,OP_ADD,2 ; 31
-	.byte THE_END
-
 ops_remainder_1:
     .db LEN_1BITS,POS_1,OP_SUB,0x3E,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
     .db LEN_1BITS,POS_1,OP_SUB,0x3A,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 1
