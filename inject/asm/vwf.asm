@@ -5,8 +5,8 @@
 .org 0x08065f4c
     bl entry
 
-.org 0x08065f5a
-    cmp r6, 0x10
+;.org 0x08065f5a
+;    cmp r6, 0x10
 
 ;god help me, if you are reading this I'm so sorry
 .org 0x080a39a0
@@ -24,11 +24,17 @@ entry:
 	bhi thats_not_the_font_buddy
 
 	pop {r0}
-its_the_font:	
-    cmp r6, 0h
+its_the_font:
+	push {r6}
+	ldr r6, =counter_skipped
+	ldr r6, [r6]
+	ldrb r6, [r6]
+	cmp r6, 0h
+	pop {r6}
     beq handle_newchar
     b draw
 pre_finale:
+	mov r7, 0x80 ;this is a hack but im over it
     bx lr
 thats_not_the_font_buddy:
 	pop {r0}
@@ -39,7 +45,14 @@ handle_newchar:
     ldr r7, [sp, 10h]
     cmp r7, 1h
     pop {r7}
-    bne draw ;if counter is at 2 its not a newchar
+    bne draw_and_reset_skip_counter ;if counter is at 2 its not a newchar
+	
+	push {r5, r6}
+	ldr r6, =counter_skipped
+	ldr r6, [r6]
+	mov r5, 0x1
+	strb r5, [r6]
+	pop {r5, r6}
 	
 ;r0 = prev width addr
 ;r1 = next width addr
@@ -88,17 +101,25 @@ reset_op_counter:
 
 prepare_counter_skip:
 	add r5, 1h
-	add r6, 1h
     pop {r0, r1, r2, r3}
-	ldr r3, =skip_the_counter
-	ldr r3, [r3]
-	mov pc, r3
+	ldr r1, =skip_the_counter
+	ldr r1, [r1]
+	mov pc, r1
     
 
 ;find a way if you can manage the push and pops better
 draw:
     b prepare_operation_run
  
+draw_and_reset_skip_counter:
+	;reset skip counter
+	push {r5, r6}
+	ldr r6, =counter_skipped
+	ldr r6, [r6]
+	mov r5, 0x0
+	strb r5, [r6]
+	pop {r5, r6}
+	b prepare_operation_run
 
 ; r0 = halfword pulled from vram (dest)
 ; r1 = 2 byte (4 pixels) value from rom
@@ -133,7 +154,7 @@ prepare_operation_run:
 	;beq handle_remainder1
 	b handle_remainder
 	
-end_operations:
+end_operations:	
 	;inc the op counter
 	add r5, 0x1
 	ldr r7, =op_counter
@@ -146,8 +167,6 @@ end_operations:
 draw_normal:
 	strh r1, [r3, 0h]
     add r3, 2h
-	mov r11, r14
-	pop {r0, r1, r2, r4, r5, r7, r8, r11}
 	b pre_finale
     
 	
@@ -210,6 +229,11 @@ run_operations:
 	push {r0, r1, r2, r3, r4, r5, r6, r11}
 	mov r11, r14
 	
+	; if we hit end opcode 0xff we do nothin!!
+	ldrb r2, [r7]
+	cmp r2, 0x0
+	beq hit_the_end
+	
 	;handle vram pos 1
 	ldrb r4, [r7, 0x2] ; add or subtract
 	ldrb r5, [r7, 0x3] ; by how much?
@@ -254,39 +278,67 @@ load_vram_to_r0_2:
 	bl insert_at_position
 	pop {r2, r3}
 	strh r1, [r3, 0h]
+
 	
-	add r7, 0x4
-	
-	mov r14, r11
-	pop {r0, r1, r2, r3, r4, r5, r6, r11}
 	
 	;head into the finale to deal with the counter
-	add r7, 0x1
+	add r7, 0x5
 	
 	; handle counter
 	ldrb r5, [r7]
 	cmp r5, 0x1
-	beq end_operation_block_run
+	beq put_back_together_and_end_operation_block_run
 	sub r6, 0x1 ;dec the main counter if we dont intend to inc it
+	b put_back_together_and_end_operation_block_run
+put_back_together_and_end_operation_block_run:
+	mov r14, r11
+	pop {r0, r1, r2, r3, r4, r5, r6, r11}
 	b end_operation_block_run
-
+hit_the_end:
+	mov r14, r11
+	pop {r0, r1, r2, r3, r4, r5, r6, r11}
+	b end_operation_block_run
 ;r3 = vram addr
 ;r5 = add amt
 add_vram_1:
+	push {r0}
+	mov r0, 0x1
+	
 	add r3, r5
+	bic r3, r0
+	
+	pop {r0}
 	b load_vram_to_r0_1
 	
 sub_vram_1:
+	push {r0}
+	mov r0, 0x1
+	
 	sub r3, r5
+	bic r3, r0
+	
+	pop {r0}
 	b load_vram_to_r0_1
 	
 	
 add_vram_2:
+	push {r0}
+	mov r0, 0x1
+	
 	add r3, r5
+	bic r3, r0
+	
+	pop {r0}
 	b load_vram_to_r0_2
 	
 sub_vram_2:
+	push {r0}
+	mov r0, 0x1
+	
 	sub r3, r5
+	bic r3, r0
+	
+	pop {r0}
 	b load_vram_to_r0_2	
 
 ; r0 = halfword pulled from vram (dest)
@@ -360,8 +412,10 @@ total_remainder:
     .word 0x0202f2b4
 op_counter:
 	.word 0x0202f2b8
+counter_skipped:
+	.word 0x0202f2bb
 skip_the_counter:
-	.word 0x08065f1c
+	.word 0x08065f56
 
 	
 ; This is a struct. LOL. And yes, I'm aware it's ridiculous. Think of it like this.
@@ -404,7 +458,7 @@ skip_the_counter:
 ops_remainder_1:
     .db LEN_1BITS,POS_1,OP_SUB,0x3E,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
     .db LEN_1BITS,POS_1,OP_SUB,0x3A,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_1,OP_SUB,0x3A,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 2
+    .db LEN_1BITS,POS_1,OP_SUB,0x3e,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 2
     .db LEN_1BITS,POS_1,OP_SUB,0x3A,LEN_3BITS,POS_2,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 3
     .db LEN_0BITS,POS_0,OP_ADD,0x04,LEN_0BITS,POS_0,JUST_INSERT,0x00,SKIP_COUNTERs_0x0 ; 4
 
