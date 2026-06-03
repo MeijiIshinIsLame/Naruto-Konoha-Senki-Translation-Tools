@@ -35,6 +35,7 @@ its_the_font:
     b draw
 pre_finale:
 	mov r7, 0x80 ;this is a hack but im over it
+	mov r8, r7
     bx lr
 thats_not_the_font_buddy:
 	pop {r0}
@@ -453,6 +454,8 @@ skip_the_counter:
 
 .definelabel THE_END, 0xFF
 
+
+;just fix the math on this and ur good
 .org 0x087c7870
 .align 4
 ops_remainder_1:
