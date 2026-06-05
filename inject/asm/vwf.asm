@@ -121,6 +121,14 @@ reset_opcounter_for_real:
 	strb r5, [r6]
 	pop {r5, r6}
 	add r3, 0x2
+	
+	push {r5, r6}
+	ldr r6, =counter_skipped
+	ldr r6, [r6]
+	mov r5, 0x0
+	strb r5, [r6]
+	pop {r5, r6}
+	
 	bx lr
 	
 
