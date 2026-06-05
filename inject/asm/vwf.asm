@@ -8,6 +8,9 @@
 ;.org 0x08065f5a
 ;    cmp r6, 0x10
 
+.org 0x08065f60
+	bl reset_opcounter_for_real
+
 ;god help me, if you are reading this I'm so sorry
 .org 0x080a39a0
 entry:
@@ -54,6 +57,7 @@ handle_newchar:
 	mov r5, 0x1
 	strb r5, [r6]
 	pop {r5, r6}
+
 	
 ;r0 = prev width addr
 ;r1 = next width addr
@@ -107,6 +111,18 @@ prepare_counter_skip:
 	ldr r1, [r1]
 	mov pc, r1
     
+reset_opcounter_for_real:
+	lsl r0, r7, 0x18
+	lsr r1, r0, 0x18
+	push {r5, r6}
+	mov r5, 0h
+	ldr r6, =op_counter
+	ldr r6, [r6]
+	strb r5, [r6]
+	pop {r5, r6}
+	add r3, 0x2
+	bx lr
+	
 
 ;find a way if you can manage the push and pops better
 draw:
@@ -372,7 +388,8 @@ counter_skipped:
 	.word 0x0202f2bb
 skip_the_counter:
 	.word 0x08065f56
-
+newchar_func:
+	.word 0x08065f10
 	
 
 .definelabel JUST_INSERT, 0
