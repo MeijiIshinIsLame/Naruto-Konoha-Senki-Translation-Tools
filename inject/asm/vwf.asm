@@ -226,71 +226,86 @@ end_operation_block_run:
 	
 	;int increment counter or not
 ; }
+
+inc_vram_and_exit:
+	ldrb r2, [r7, 0x1]
+	add r3, r2
+	b dont_inc_counter
+
 run_operations:
 	push {r0, r1, r2, r4, r5, r6, r11}
 	mov r11, r14
 	
-	; if we hit end opcode 0xff we do nothin!!
+	; if we hit end opcode 0xf8 we do nothin!!
 	ldrb r2, [r7]
-	cmp r2, 0xFF
+	cmp r2, THE_END
 	beq hit_the_end
 	
-	;handle vram pos 1
-	ldrb r4, [r7, 0x2] ; add or subtract
-	ldrb r5, [r7, 0x3] ; by how much?
+	cmp r2, JUST_ADD_VRAM
+	beq inc_vram_and_exit
+
+;handle vram pos 1
+	ldrb r4, [r7, 0x0] ; add or subtract
+	ldrb r5, [r7, 0x1] ; by how much?
 	
 	cmp r4, 0x1
 	beq add_vram_1
 	
 	cmp r4, 0x2
 	beq sub_vram_1
+	
+		
 load_vram_to_r0_1:
 	ldrh r0, [r3]
+	push {r2, r3, r4}
+	ldrh r2, [r7, 0x2] ; src mask
+	ldrh r3, [r7, 0x4] ; dst mask
+	ldrb r4, [r7, 0x7] ; lsr amt
 	
-	;handle insert pos 1
-	push {r2, r3}
-	ldrb r2, [r7, 0x1]
-	ldrb r3, [r7, 0x0]
+	and     r0, r2          
+    and     r1, r3            
+    orr     r1, r0
 	
+	lsr r1, r4
 	
-	bl insert_at_position
-	pop {r2, r3}
+	pop {r2, r3, r4}
 	strh r1, [r3, 0h]
 	
+	add r7, 0x8 ; inc read pos
 	
-	add r7, 0x4 ; inc read pos
 	
-	
-	;handle vram pos 2
-	ldrb r4, [r7, 0x2] ; add or subtract
-	ldrb r5, [r7, 0x3] ; by how much?
+;handle vram pos 2
+	ldrb r4, [r7, 0x0] ; add or subtract
+	ldrb r5, [r7, 0x1] ; by how much?
 	
 	cmp r4, 0x1
 	beq add_vram_2
 	
 	cmp r4, 0x2
 	beq sub_vram_2
+	
+		
 load_vram_to_r0_2:
 	ldrh r0, [r3]
+	push {r2, r3, r4}
+	ldrh r2, [r7, 0x2] ; src mask
+	ldrh r3, [r7, 0x4] ; dst mask
+	ldrb r4, [r7, 0x7] ; lsr amt
 	
-	;handle insert pos 2
-	mov r1, r8
-	push {r2, r3}
-	ldrb r2, [r7, 0x1]
-	ldrb r3, [r7, 0x0]
-	bl insert_at_position
-	pop {r2, r3}
+	and     r0, r2          
+    and     r1, r3            
+    orr     r1, r0
+	
+	lsr r1, r4
+	
+	pop {r2, r3, r4}
 	strh r1, [r3, 0h]
-
-	
-	
-	;head into the finale to deal with the counter
-	add r7, 0x5
 	
 	; handle counter
-	ldrb r5, [r7]
+	ldrb r5, [r7, 9h]
 	cmp r5, 0x1
 	beq put_back_together_and_end_operation_block_run
+dont_inc_counter:
 	sub r6, 0x1 ;dec the main counter if we dont intend to inc it
 	b put_back_together_and_end_operation_block_run
 put_back_together_and_end_operation_block_run:
@@ -301,6 +316,8 @@ hit_the_end:
 	mov r14, r11
 	pop {r0, r1, r2, r4, r5, r6, r11}
 	b end_operation_block_run
+	
+	
 ;r3 = vram addr
 ;r5 = add amt
 add_vram_1:
@@ -319,55 +336,6 @@ add_vram_2:
 sub_vram_2:
 	sub r3, r5
 	b load_vram_to_r0_2	
-
-; r0 = halfword pulled from vram (dest)
-; r1 = halfword pulled from rom (src)
-; r2 = pos (from left to right as pixels - 12 34)
-; r3 = len to insert (1-4)
-; r4 = dest bitmask
-; r5 = src bitmask
-; at the end, r1 is the final thing 
-; im gonna be real...i dont entirely understand why this works
-insert_at_position:
-    push    {r4, r5, lr}
-	
-	; src mask
-    mov     r5, #0x1
-
-    lsl     r4, r3, #0x2 ; r4 = len * 4
-    lsl     r5, r4            
-
-    sub     r5, #0x1          
-
-    mov     r4, #0x5
-    sub     r4, r2
-    sub     r4, r3 ; r4 = 5 - pos - len
-
-    lsl     r4, #0x2          
-    lsl     r5, r4           
-
-    ; dest mask = ~src mask & 0xffff (LITERALLY JUST BITFLIPPED)
-    mov     r4, r5
-    mvn     r4, r4
-	; keep it 16bit boi
-    lsl     r4, #0x10
-    lsr     r4, #0x10
-
-    and     r0, r4           
-    and     r1, r5            
-    orr     r1, r0  
-	
-	
-	;get in pos for next pixels
-	mov r4, 0x4
-	mul r4, r3
-	
-	mov r5, r8
-	lsr r5, r4
-	mov r8, r5
-
-    pop     {r4, r5, lr}
-	
 	
 
 ;operation loading
@@ -406,19 +374,6 @@ skip_the_counter:
 	.word 0x08065f56
 
 	
-; This is a struct. LOL. And yes, I'm aware it's ridiculous. Think of it like this.
-; struct InsertOrder {
-	; int insertAmount (1-4 bits)
-	; int insertpos (1-4)
-	; int addOrSubtract (0=none, 1=add, 2=subtract)
-	; int addOrSubtractAmount
-	
-	; int insertAmount (1-4 bits)
-	; int insertpos (1-4)
-	; int addOrSubtract (0=none, 1=add, 2=subtract)
-	; int addOrSubtractAmount
-; }
-;its 2 times incase 2 operations need to happen
 
 .definelabel JUST_INSERT, 0
 .definelabel OP_ADD, 1
@@ -436,73 +391,80 @@ skip_the_counter:
 .definelabel POS_3, 3
 .definelabel POS_4, 4
 
-.definelabel SKIP_COUNTERs_0x0, 0x0
-.definelabel INC_COUNTERs_0x1, 0x1
+.definelabel SKIP_COUNTERs_0x0, 0x0000
+.definelabel INC_COUNTERs_0x1, 0x0100
 
-.definelabel THE_END, 0xFF
+.definelabel THE_END, 0xF8
 
-.definelabel INSTR_LEN, 9
+.definelabel INSTR_LEN, 18
 
-.definelabel LSR_0, 0x0
-.definelabel LSR_1, 0x4
-.definelabel LSR_2, 0x8
-.definelabel LSR_3, 0xC
-.definelabel LSR_4, 0x10
+.definelabel LSR_0, 0x0000
+.definelabel LSR_4, 0x0400
 
 
-;just fix the math on this and ur good
+.definelabel FILLER_BYTES, 0x6767
+.definelabel JUST_ADD_VRAM, 0x69
+
+; This is a struct. LOL. And yes, I'm aware it's ridiculous. Think of it like this.
+; struct InsertOrder {
+	; src_mask
+	; dst_mask
+	; int addOrSubtract (0=none, 1=add, 2=subtract)
+	; int addOrSubtractAmount
+	
+	; src_mask
+	; dst_mask
+	; int addOrSubtract (0=none, 1=add, 2=subtract)
+	; int addOrSubtractAmount
+	
+	;increment counter or not
+; }
+;its 2 times incase 2 operations need to happen
+;try src mask and dst mask maybe?
 .org 0x087c7870
 ops_remainder_1:
-    .db LEN_1BITS,POS_4,OP_SUB,0x3E,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-	.db LEN_0BITS,POS_0,OP_ADD,0x02,LEN_0BITS,POS_0,JUST_INSERT,0x00,SKIP_COUNTERs_0x0 ; 4
-	
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3E,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-	.db LEN_0BITS,POS_0,OP_ADD,0x02,LEN_0BITS,POS_0,JUST_INSERT,0x00,SKIP_COUNTERs_0x0 ; 4
-	
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3E,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-	.db LEN_0BITS,POS_0,OP_ADD,0x02,LEN_0BITS,POS_0,JUST_INSERT,0x00,SKIP_COUNTERs_0x0 ; 4
-	
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3E,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-    .db LEN_1BITS,POS_4,OP_SUB,0x3C,LEN_4BITS,POS_1,OP_ADD,0x3E,INC_COUNTERs_0x1 ; 0
-    .db LEN_1BITS,POS_1,JUST_INSERT,0x0,LEN_3BITS,POS_2,OP_ADD,0x2,INC_COUNTERs_0x1 ; 1
-	
-	.db LEN_0BITS,POS_0,OP_ADD,0x02,LEN_0BITS,POS_0,JUST_INSERT,0x00,SKIP_COUNTERs_0x0 ; 4
+    .db OP_SUB,0x3E
+		.dh 0xFFF0,0x000F,LSR_0
+	.db OP_ADD,0x3E
+		.dh 0x000F,0xFFF0,LSR_4,INC_COUNTERs_0x1
+		
+	.db JUST_INSERT,0x00
+		.dh 0x0FFF,0xF000,LSR_0
+	.db OP_ADD,0x2
+		.dh 0xF000,0x0FFF,LSR_0,INC_COUNTERs_0x1
+		
+	.db OP_SUB,0x3C
+		.dh 0xFFF0,0x000F,LSR_0
+	.db OP_ADD,0x3E
+		.dh 0x000F,0xFFF0,LSR_4,INC_COUNTERs_0x1
+		
+	.db JUST_INSERT,0x00
+		.dh 0x0FFF,0xF000,LSR_0
+	.db OP_ADD,0x2
+		.dh 0xF000,0x0FFF,LSR_0,INC_COUNTERs_0x1
+		
+	.db OP_SUB,0x3E
+		.dh 0xFFF0,0x000F,LSR_0
+	.db OP_ADD,0x3E
+		.dh 0x000F,0xFFF0,LSR_4,INC_COUNTERs_0x1
+		
+	.db JUST_INSERT,0x00
+		.dh 0x0FFF,0xF000,LSR_0
+	.db OP_ADD,0x2
+		.dh 0xF000,0x0FFF,LSR_0,INC_COUNTERs_0x1
+		
+	.db OP_SUB,0x3C
+		.dh 0xFFF0,0x000F,LSR_0
+	.db OP_ADD,0x3E
+		.dh 0x000F,0xFFF0,LSR_4,INC_COUNTERs_0x1
+		
+	.db JUST_INSERT,0x00
+		.dh 0x0FFF,0xF000,LSR_0
+	.db OP_ADD,0x2
+		.dh 0xF000,0x0FFF,LSR_0,INC_COUNTERs_0x1
+		
+	.db JUST_ADD_VRAM,0x2
+		.dh FILLER_BYTES,FILLER_BYTES,FILLER_BYTES,FILLER_BYTES,FILLER_BYTES,FILLER_BYTES
 	
 	.byte THE_END
 	
