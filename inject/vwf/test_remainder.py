@@ -78,19 +78,20 @@ class CPU:
 
 
 ############ LEN 7 #############
+print("################################ REMAINDER 7 #####################################")
 cpu = CPU(ramlen)
 
 cpu.go_back(0x3e)
-cpu.insert_2bytes("8000")
+cpu.insert_2bytes("8000") #lsl 0x1c, lsr 0x10 to get 0008
 
 cpu.go_forwards(0x3e)
-cpu.insert_2bytes("0888")
+cpu.insert_2bytes("0888") #lsr 0x4
 
 cpu.go_forwards(0x0)
-cpu.insert_2bytes("8000")
+cpu.insert_2bytes("8000") #lsl 0x0
 
 cpu.go_forwards(0x2)
-cpu.insert_2bytes("0888")
+cpu.insert_2bytes("0888") #lsl 0x0
 
 ###################this is where shit gets fucked
 
@@ -107,7 +108,70 @@ for i in range(0, 15):
     cpu.go_forwards(0x2)
     cpu.insert_2bytes("0888")
 
+print("################################ REMAINDER 6 #####################################")
+cpu = CPU(ramlen)
+
+cpu.go_back(0x3e)
+cpu.insert_2bytes("8800")
+
+cpu.go_forwards(0x3e)
+cpu.insert_2bytes("0088")
+
+cpu.go_forwards(0x0)
+cpu.insert_2bytes("8800")
+
+cpu.go_forwards(0x2)
+cpu.insert_2bytes("0088")
+
+###################this is where shit gets fucked
+"""
+for i in range(0, 15):
+    cpu.go_back(0x3c)
+    cpu.insert_2bytes("8800")
+
+    cpu.go_forwards(0x3e)
+    cpu.insert_2bytes("0088")
+
+    cpu.go_forwards(0x0)
+    cpu.insert_2bytes("8800")
+
+    cpu.go_forwards(0x2)
+    cpu.insert_2bytes("0088")
+
+
+print("################################ REMAINDER 5 #####################################")
+cpu = CPU(ramlen)
+
+cpu.go_back(0x3e)
+cpu.insert_2bytes("8880")
+
+cpu.go_forwards(0x3e)
+cpu.insert_2bytes("0008")
+
+cpu.go_forwards(0x0)
+cpu.insert_2bytes("8880")
+
+cpu.go_forwards(0x2)
+cpu.insert_2bytes("0888")
+
+###################this is where shit gets fucked
+
+for i in range(0, 15):
+    cpu.go_back(0x3c)
+    cpu.insert_2bytes("8880")
+
+    cpu.go_forwards(0x3e)
+    cpu.insert_2bytes("0888")
+
+    cpu.go_forwards(0x0)
+    cpu.insert_2bytes("8880")
+
+    cpu.go_forwards(0x2)
+    cpu.insert_2bytes("0888")
+
+
 
 #cpu.insert_2bytes("1234")
 #print(cpu.get_2bytes())
 
+"""
