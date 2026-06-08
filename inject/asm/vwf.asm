@@ -91,16 +91,8 @@ store_total_remainder:
 	sub r3, r2 ;8 - remainder, stored in r2
 	add r0, r3 ;add to total remainder
 	cmp r0, 0x8
-	bgt shave_remainder
-	beq store_remainder_overflow
+	bge shave_remainder
 	b store_remainder
-store_remainder_overflow:
-	push {r3, r4}
-	ldr r3, =remainder_overflow
-	ldr r3, [r3]
-	mov r4, 0x1
-	strb r4, [r3]
-	pop {r3, r4}
 shave_remainder:
 	sub r0, 0x8
 store_remainder:
@@ -217,21 +209,7 @@ draw_non_vwf:
 ; r6 = main counter (do not pop or edit this)
 ; r7 = free
 ; r8 = copy of halfword to insert
-handle_remainder:
-	push {r5, r6}
-	ldr r5, =remainder_overflow
-	ldr r5, [r5]
-	ldrb r6, [r5]
-	cmp r6, 0x1
-	beq handle_vram_overflow
-	b continue_drawing_remainders
-handle_vram_overflow:
-	sub r3, 0x40
-	mov r6, 0x0
-	strb r6, [r5]
-continue_drawing_remainders:
-	pop {r5, r6}
-	
+handle_remainder:	
 	cmp r4, 0x0
 	beq draw_normal
 	cmp r4, 0x1
@@ -503,6 +481,8 @@ newchar_func:
 	.word 0x08065f10
 remainder_overflow:
 	.word 0x0202f2c0
+stupid_fucking_vram_addr_on_stack:
+	.word 0x03001170
 	
 
 .definelabel JUST_INSERT, 0
