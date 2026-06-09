@@ -8,11 +8,41 @@
 ;.org 0x08065f5a
 ;    cmp r6, 0x10
 
+.org 0x08065f18
+	bl handle_font_overflow
+
 .org 0x08065f60
 	bl reset_opcounter_for_real
 
 ;god help me, if you are reading this I'm so sorry
 .org 0x080a39a0
+handle_font_overflow:
+	ldr r1, [sp, 0x8]
+	add r4, r0, r1
+	
+	push {r5, r6}
+	ldr r6, =remainder_overflow
+	ldr r6, [r6]
+	ldrb r5, [r6]
+	cmp r5, 0x1
+	beq sub_teh_vram
+	b pop_that_shit
+sub_teh_vram:
+	cmp r0, 0x4
+	beq sub_40
+	b pop_that_shit
+sub_40:
+	push {r3, r5}
+	ldr r3, [r4]
+	sub r3, 0x40
+	str r3, [r4]
+	pop {r3, r5}
+	b pop_that_shit
+pop_that_shit:
+	pop {r5, r6}
+	bx lr
+	
+
 entry:
 	push {r0}
 
@@ -45,6 +75,19 @@ thats_not_the_font_buddy:
 	b draw_non_vwf
     
 handle_newchar:
+	push {r5, r6}
+	ldr r5, =remainder_overflow
+	ldr r5, [r5]
+	ldrb r5, [r5]
+	cmp r5, 0x0
+	beq cont
+	ldr r6, =stack_vram1
+	ldr r6, [r6]
+	ldr r5, [r6]
+	sub r5, 0x40
+	str r5, [r6]
+cont:
+	pop {r5, r6}
     push {r7}
     ldr r7, [sp, 10h]
     cmp r7, 1h
@@ -94,6 +137,20 @@ store_total_remainder:
 	bge shave_remainder
 	b store_remainder
 shave_remainder:
+	push {r5, r6}
+	mov r5, 0x1
+	ldr r6, =remainder_overflow
+	ldr r6, [r6]
+	strb r5, [r6]
+	
+	ldr r6, =stack_vram1
+	ldr r6, [r6]
+	ldr r5, [r6]
+	sub r5, 0x40
+	str r5, [r6]
+	
+	pop {r5, r6}
+
 	sub r0, 0x8
 store_remainder:
 	strb r0, [r1]
@@ -481,7 +538,7 @@ newchar_func:
 	.word 0x08065f10
 remainder_overflow:
 	.word 0x0202f2c0
-stupid_fucking_vram_addr_on_stack:
+stack_vram1:
 	.word 0x03001170
 	
 

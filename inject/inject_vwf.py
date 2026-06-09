@@ -47,7 +47,7 @@ def is_all_white_column(char, x):
 
 #if its all white bg for the whole y axis and no more black afterwards, the width ends there
 def get_charwidth(char):
-    if char.path.stem == "space": return 2 #dont even bother with space cuz its 2 fo sho
+    if char.path.stem == "899E": return 2 #dont even bother with space cuz its 2 fo sho
     width = char.width
     #start at 1 cuz u cant have a 0 px image
     for x in range(1, char.width):
