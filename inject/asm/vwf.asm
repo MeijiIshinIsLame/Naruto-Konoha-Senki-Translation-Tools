@@ -157,22 +157,25 @@ store_total_remainder:
 	b store_remainder
 shave_remainder:
 	push {r5, r6, r7}
-	mov r5, 0x1
 	ldr r6, =remainder_overflow
 	ldr r6, [r6]
+	ldrb r5, [r6]
+	add r5, 0x1
 	strb r5, [r6]
+	
+	mov r7, 0x40
 	
 	ldr r6, =stack_vram1
 	ldr r6, [r6]
 	ldr r5, [r6]
-	sub r5, 0x40
+	sub r5, r7
 	str r5, [r6]
 	mov r5, r11
 	
 	ldr r6, =stack_vram2
 	ldr r6, [r6]
 	ldr r5, [r6]
-	sub r5, 0x40
+	sub r5, r7
 	str r5, [r6]
 	
 	pop {r5, r6, r7}
