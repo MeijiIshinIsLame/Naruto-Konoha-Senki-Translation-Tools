@@ -21,17 +21,17 @@
 .org 0x080a39a0
 
 sub_for_font_overflow:
-	push {r0, r1}
+	push {r0, r1, r5}
 	ldr r0, =remainder_overflow
 	ldr r0, [r0]
-	ldrb r0, [r0]
-	cmp r0, 0x0
+	ldrb r5, [r0]
+	cmp r5, 0x0
 	beq go_back_asshole
 	
 	sub r2, 0x40
 	sub r3, 0x40
 go_back_asshole:
-	pop {r0, r1}
+	pop {r0, r1, r5}
 	str r2, [sp]
 	str r3, [sp, 0x4]
 	bx lr
@@ -156,7 +156,7 @@ store_total_remainder:
 	bge shave_remainder
 	b store_remainder
 shave_remainder:
-	push {r5, r6}
+	push {r5, r6, r7}
 	mov r5, 0x1
 	ldr r6, =remainder_overflow
 	ldr r6, [r6]
@@ -175,7 +175,7 @@ shave_remainder:
 	sub r5, 0x40
 	str r5, [r6]
 	
-	pop {r5, r6}
+	pop {r5, r6, r7}
 
 	sub r0, 0x8
 store_remainder:
