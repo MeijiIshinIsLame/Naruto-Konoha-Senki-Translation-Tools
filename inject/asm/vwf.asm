@@ -5,50 +5,70 @@
 .org 0x08065f4c
     bl entry
 
+.org 0x08065ecc
+	bl sub_for_font_overflow
+
 ;.org 0x08065f5a
 ;    cmp r6, 0x10
 
-.org 0x08065f18
-	bl handle_font_overflow
+;.org 0x08065f18
+	;bl handle_font_overflow
 
 .org 0x08065f60
 	bl reset_opcounter_for_real
 
 ;god help me, if you are reading this I'm so sorry
 .org 0x080a39a0
-handle_font_overflow:
-	ldr r1, [sp, 0x8]
-	add r4, r0, r1
-	
-	push {r5, r6}
-	ldr r6, =remainder_overflow
-	ldr r6, [r6]
-	ldrb r5, [r6]
-	cmp r5, 0x1
-	beq sub_teh_vram
-	b pop_that_shit
-sub_teh_vram:
-	cmp r0, 0x4
-	beq sub_40
+
+sub_for_font_overflow:
+	push {r0, r1}
+	ldr r0, =remainder_overflow
+	ldr r0, [r0]
+	ldrb r0, [r0]
 	cmp r0, 0x0
-	beq sub_40
-	b pop_that_shit
-sub_40:
-	push {r3, r5}
-	ldr r3, [r4]
+	beq go_back_asshole
+	
+	sub r2, 0x40
 	sub r3, 0x40
-	str r3, [r4]
-	
-	ldr r5, =remainder_overflow
-	ldr r5, [r5]
-	mov r3, 0x0
-	strb r3, [r5]
-	
-	pop {r3, r5}
-	b pop_that_shit
-pop_that_shit:
-	pop {r5, r6}
+go_back_asshole:
+	pop {r0, r1}
+	str r2, [sp]
+	str r3, [sp, 0x4]
 	bx lr
+
+; handle_font_overflow:
+	; ldr r1, [sp, 0x8]
+	; add r4, r0, r1
+	
+	; push {r5, r6}
+	; ldr r6, =remainder_overflow
+	; ldr r6, [r6]
+	; ldrb r5, [r6]
+	; cmp r5, 0x1
+	; beq sub_teh_vram
+	; b pop_that_shit
+; sub_teh_vram:
+	; cmp r0, 0x4
+	; beq sub_40
+	; cmp r0, 0x0
+	; beq sub_40
+	; b pop_that_shit
+; sub_40:
+	; push {r3, r5}
+	; ldr r3, [r4]
+	; sub r3, 0x40
+	; str r3, [r4]
+	
+	; ldr r5, =remainder_overflow
+	; ldr r5, [r5]
+	; mov r3, 0x0
+	; strb r3, [r5]
+	
+	; pop {r3, r5}
+	; b pop_that_shit
+; pop_that_shit:
+	; pop {r5, r6}
+	; bx lr
 	
 
 entry:
@@ -148,6 +168,12 @@ shave_remainder:
 	sub r5, 0x40
 	str r5, [r6]
 	mov r5, r11
+	
+	ldr r6, =stack_vram2
+	ldr r6, [r6]
+	ldr r5, [r6]
+	sub r5, 0x40
+	str r5, [r6]
 	
 	pop {r5, r6}
 
