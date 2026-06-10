@@ -38,6 +38,12 @@ sub_40:
 	ldr r3, [r4]
 	sub r3, 0x40
 	str r3, [r4]
+	
+	ldr r5, =remainder_overflow
+	ldr r5, [r5]
+	mov r3, 0x0
+	strb r3, [r5]
+	
 	pop {r3, r5}
 	b pop_that_shit
 pop_that_shit:
