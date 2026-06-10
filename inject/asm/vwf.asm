@@ -30,6 +30,8 @@ handle_font_overflow:
 sub_teh_vram:
 	cmp r0, 0x4
 	beq sub_40
+	cmp r0, 0x0
+	beq sub_40
 	b pop_that_shit
 sub_40:
 	push {r3, r5}
@@ -76,16 +78,7 @@ thats_not_the_font_buddy:
     
 handle_newchar:
 	push {r5, r6}
-	ldr r5, =remainder_overflow
-	ldr r5, [r5]
-	ldrb r5, [r5]
-	cmp r5, 0x0
-	beq cont
-	ldr r6, =stack_vram1
-	ldr r6, [r6]
-	ldr r5, [r6]
-	sub r5, 0x40
-	str r5, [r6]
+	mov r11, r3
 cont:
 	pop {r5, r6}
     push {r7}
@@ -148,6 +141,7 @@ shave_remainder:
 	ldr r5, [r6]
 	sub r5, 0x40
 	str r5, [r6]
+	mov r5, r11
 	
 	pop {r5, r6}
 
@@ -164,6 +158,7 @@ reset_op_counter:
 prepare_counter_skip:
 	add r5, 1h
     pop {r0, r1, r2, r3}
+	mov r11, r3
 	ldr r1, =skip_the_counter
 	ldr r1, [r1]
 	mov pc, r1
@@ -540,6 +535,8 @@ remainder_overflow:
 	.word 0x0202f2c0
 stack_vram1:
 	.word 0x03001170
+stack_vram2:
+	.word 0x03001174
 	
 
 .definelabel JUST_INSERT, 0
