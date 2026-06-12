@@ -8,6 +8,9 @@
 .org 0x08065ecc
 	bl sub_for_font_overflow
 
+.org 0x0806672c
+	bl reset_ram
+
 ;.org 0x08065f5a
 ;    cmp r6, 0x10
 
@@ -19,6 +22,40 @@
 
 ;god help me, if you are reading this I'm so sorry
 .org 0x080a39a0
+
+reset_ram:
+	push {r0, r1}
+	ldr r0, =prev_widthOP_ADDr
+	ldr r0, [r0]
+	mov r1, 0x0
+	str r1, [r0]
+	
+	ldr r0, =total_remainder
+	ldr r0, [r0]
+	mov r1, 0x0
+	str r1, [r0]
+	
+	ldr r0, =op_counter
+	ldr r0, [r0]
+	mov r1, 0x0
+	str r1, [r0]
+	
+	ldr r0, =counter_skipped
+	ldr r0, [r0]
+	mov r1, 0x0
+	str r1, [r0]
+	
+	ldr r0, =remainder_overflow
+	ldr r0, [r0]
+	mov r1, 0x0
+	str r1, [r0]
+	
+	
+	pop {r0, r1}
+	mov r8, r3
+	mov r9, r4
+	bx lr
+
 
 sub_for_font_overflow:
 	push {r0, r1, r5}
