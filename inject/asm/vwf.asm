@@ -30,6 +30,31 @@ sub_for_font_overflow:
 	
 	sub r2, 0x40
 	sub r3, 0x40
+	
+	cmp r5, 0x1
+	beq go_back_asshole
+	
+	sub r2, 0x40
+	sub r3, 0x40
+	
+	cmp r5, 0x2
+	beq go_back_asshole
+	
+	sub r2, 0x40
+	sub r3, 0x40
+	
+	cmp r5, 0x3
+	beq go_back_asshole
+	
+	sub r2, 0x40
+	sub r3, 0x40
+	
+	cmp r5, 0x4
+	beq go_back_asshole
+	
+	sub r2, 0x40
+	sub r3, 0x40
+	
 go_back_asshole:
 	pop {r0, r1, r5}
 	str r2, [sp]
